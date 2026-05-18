@@ -61,7 +61,7 @@ function Login() {
             Escolha uma das opções abaixo<br />para continuar
           </p>
           <button style={styles.btnSolid} onClick={() => navigate('/entrar')}>Entrar</button>
-          <button style={styles.btnOutline}>Cadastrar</button>
+          <button style={styles.btnOutline} onClick={() => navigate('/cadastro')}>Cadastrar</button>
           <p style={styles.orText}>Ou continue com</p>
           <div style={styles.socialButtons}>
             <button style={styles.socialBtn} title="Google">

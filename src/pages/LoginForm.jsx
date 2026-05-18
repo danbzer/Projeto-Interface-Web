@@ -5,6 +5,30 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!email) {
+      newErrors.email = "E-mail é obrigatório.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "E-mail inválido.";
+    }
+
+    if (!password) {
+      newErrors.password = "Senha é obrigatória.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (validate()) {
+      alert("Login realizado com sucesso!");
+    }
+  };
 
   return (
     <div style={styles.page}>
@@ -22,8 +46,12 @@ function LoginForm() {
               placeholder="Digite aqui..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={styles.input}
+              style={{
+                ...styles.input,
+                border: errors.email ? "2px solid #ff4d4d" : "none",
+              }}
             />
+            {errors.email && <span style={styles.errorMsg}>{errors.email}</span>}
           </div>
 
           {/* SENHA */}
@@ -35,7 +63,10 @@ function LoginForm() {
                 placeholder="Digite aqui..."
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                style={styles.input}
+                style={{
+                  ...styles.input,
+                  border: errors.password ? "2px solid #ff4d4d" : "none",
+                }}
               />
               <button
                 style={styles.eyeBtn}
@@ -45,10 +76,11 @@ function LoginForm() {
                 {showPassword ? "👁️" : "🙈"}
               </button>
             </div>
+            {errors.password && <span style={styles.errorMsg}>{errors.password}</span>}
           </div>
 
           {/* BOTÃO */}
-          <button style={styles.btnSolid}>Entrar</button>
+          <button style={styles.btnSolid} onClick={handleSubmit}>Entrar</button>
         </div>
       </main>
     </div>
@@ -127,6 +159,12 @@ const styles = {
     fontSize: "18px",
     cursor: "pointer",
     marginTop: "16px",
+  },
+  errorMsg: {
+    fontSize: "12px",
+    color: "#ff4d4d",
+    marginTop: "4px",
+    paddingLeft: "12px",
   },
 };
 
