@@ -60,7 +60,7 @@ function Cadastro() {
 
   const handleSubmit = () => {
     if (validate()) {
-      navigate('/perfil');
+      navigate('/home');
     }
   };
 
