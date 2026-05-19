@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
 
 function Home() {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const bookPlaceholders = [1, 2, 3, 4, 5];
@@ -40,6 +42,9 @@ function Home() {
                 <button style={styles.dropdownItem}>Meu perfil</button>
                 <button style={styles.dropdownItem}>Minha biblioteca</button>
                 <button style={styles.dropdownItem}>Minhas preferências</button>
+                <button style={{ ...styles.dropdownItem, color: "#ff4d4d" }} onClick={() => navigate('/')}>
+                  Sair
+                </button>
               </div>
             )}
           </div>
@@ -138,7 +143,6 @@ const styles = {
     fontFamily: "'PT Mono', monospace",
     color: "#301C54",
   },
-
   main: {
     width: "100%",
     maxWidth: "1050px",
@@ -146,7 +150,6 @@ const styles = {
     padding: "28px 32px 56px",
     boxSizing: "border-box",
   },
-
   topArea: {
     display: "flex",
     alignItems: "center",
@@ -155,7 +158,6 @@ const styles = {
     marginBottom: "34px",
     position: "relative",
   },
-
   searchBox: {
     flex: 1,
     maxWidth: "520px",
@@ -168,13 +170,11 @@ const styles = {
     boxSizing: "border-box",
     margin: "0 auto",
   },
-
   searchIcon: {
     color: "#8A7E99",
     fontSize: "18px",
     marginRight: "8px",
   },
-
   searchInput: {
     width: "100%",
     border: "none",
@@ -184,14 +184,12 @@ const styles = {
     fontSize: "12px",
     color: "#301C54",
   },
-
   userArea: {
     display: "flex",
     alignItems: "center",
     gap: "8px",
     position: "relative",
   },
-
   profileButton: {
     width: "34px",
     height: "34px",
@@ -200,7 +198,6 @@ const styles = {
     backgroundColor: "#E5E0EA",
     cursor: "pointer",
   },
-
   menuButton: {
     width: "34px",
     height: "34px",
@@ -211,7 +208,6 @@ const styles = {
     cursor: "pointer",
     fontSize: "16px",
   },
-
   dropdown: {
     position: "absolute",
     top: "42px",
@@ -226,7 +222,6 @@ const styles = {
     flexDirection: "column",
     gap: "6px",
   },
-
   dropdownItem: {
     border: "none",
     backgroundColor: "transparent",
@@ -238,29 +233,24 @@ const styles = {
     fontSize: "11px",
     color: "#301C54",
   },
-
   greetingSection: {
     marginBottom: "22px",
   },
-
   greeting: {
     fontSize: "28px",
     margin: "0 0 4px",
     color: "#1D1D1D",
   },
-
   question: {
     fontSize: "16px",
     margin: "0 0 18px",
     color: "#1D1D1D",
   },
-
   basedText: {
     fontSize: "12px",
     color: "#1D1D1D",
     margin: 0,
   },
-
   tagBlue: {
     backgroundColor: "#DFF0FF",
     color: "#326A9F",
@@ -268,7 +258,6 @@ const styles = {
     borderRadius: "20px",
     fontSize: "11px",
   },
-
   tagPink: {
     backgroundColor: "#FFE1E8",
     color: "#9F3A5B",
@@ -276,11 +265,9 @@ const styles = {
     borderRadius: "20px",
     fontSize: "11px",
   },
-
   featureSection: {
     marginBottom: "34px",
   },
-
   featureCard: {
     display: "grid",
     gridTemplateColumns: "150px 1fr",
@@ -292,7 +279,6 @@ const styles = {
     boxSizing: "border-box",
     maxWidth: "650px",
   },
-
   bigCover: {
     height: "210px",
     borderRadius: "10px",
@@ -301,26 +287,22 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
   },
-
   coverText: {
     color: "#F5F0FF",
     fontSize: "13px",
   },
-
   featureInfo: {
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     gap: "10px",
   },
-
   skeletonTitle: {
     width: "70%",
     height: "18px",
     backgroundColor: "#D8D1E4",
     borderRadius: "8px",
   },
-
   skeletonAuthor: {
     width: "42%",
     height: "12px",
@@ -328,27 +310,23 @@ const styles = {
     borderRadius: "8px",
     marginBottom: "10px",
   },
-
   textLines: {
     display: "flex",
     flexDirection: "column",
     gap: "8px",
   },
-
   skeletonLine: {
     width: "100%",
     height: "10px",
     backgroundColor: "#E8E0F0",
     borderRadius: "8px",
   },
-
   dots: {
     display: "flex",
     gap: "10px",
     marginTop: "18px",
     marginLeft: "210px",
   },
-
   dotActive: {
     width: "48px",
     height: "4px",
@@ -356,7 +334,6 @@ const styles = {
     borderRadius: "20px",
     display: "block",
   },
-
   dot: {
     width: "36px",
     height: "4px",
@@ -364,24 +341,20 @@ const styles = {
     borderRadius: "20px",
     display: "block",
   },
-
   section: {
     marginTop: "34px",
   },
-
   sectionTitle: {
     fontSize: "14px",
     color: "#1D1D1D",
     marginBottom: "16px",
   },
-
   bookRow: {
     display: "flex",
     gap: "16px",
     overflowX: "auto",
     paddingBottom: "10px",
   },
-
   smallCard: {
     minWidth: "180px",
     backgroundColor: "#FFFFFF",
@@ -393,7 +366,6 @@ const styles = {
     gridTemplateColumns: "60px 1fr",
     gap: "10px",
   },
-
   smallCover: {
     width: "60px",
     height: "86px",
@@ -403,33 +375,28 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
   },
-
   smallCoverText: {
     color: "#F5F0FF",
     fontSize: "10px",
   },
-
   smallInfo: {
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     gap: "8px",
   },
-
   smallTitle: {
     width: "90%",
     height: "10px",
     backgroundColor: "#D8D1E4",
     borderRadius: "8px",
   },
-
   smallAuthor: {
     width: "65%",
     height: "8px",
     backgroundColor: "#E8E0F0",
     borderRadius: "8px",
   },
-
   smallStars: {
     fontSize: "10px",
     color: "#F2C94C",
