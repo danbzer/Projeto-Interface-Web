@@ -41,7 +41,7 @@ function LoginForm() {
         <h2 style={styles.title}>Entrar</h2>
 
         <div style={styles.form}>
-          {/* EMAIL */}
+          {/*email */}
           <div style={styles.field}>
             <label style={styles.label}>E-mail</label>
             <input
@@ -57,7 +57,7 @@ function LoginForm() {
             {errors.email && <span style={styles.errorMsg}>{errors.email}</span>}
           </div>
 
-          {/* SENHA */}
+          {/*senha*/}
           <div style={styles.field}>
             <label style={styles.label}>Senha</label>
             <div style={styles.inputWrapper}>
@@ -82,7 +82,7 @@ function LoginForm() {
             {errors.password && <span style={styles.errorMsg}>{errors.password}</span>}
           </div>
 
-          {/* BOTÃO */}
+          {/*botão*/}
           <button style={styles.btnSolid} onClick={handleSubmit}>Entrar</button>
         </div>
       </main>

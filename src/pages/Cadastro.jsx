@@ -73,7 +73,6 @@ function Cadastro() {
 
         <div style={styles.form}>
 
-          {/* NOME */}
           <div style={styles.field}>
             <label style={styles.label}>Nome completo</label>
             <input
@@ -86,7 +85,6 @@ function Cadastro() {
             {errors.nome && <span style={styles.errorMsg}>{errors.nome}</span>}
           </div>
 
-          {/* DATA DE NASCIMENTO */}
           <div style={styles.field}>
             <label style={styles.label}>Data de Nascimento</label>
             <input
@@ -105,7 +103,6 @@ function Cadastro() {
             {errors.dataNascimento && <span style={styles.errorMsg}>{errors.dataNascimento}</span>}
           </div>
 
-          {/* EMAIL */}
           <div style={styles.field}>
             <label style={styles.label}>E-mail</label>
             <input
@@ -118,7 +115,6 @@ function Cadastro() {
             {errors.email && <span style={styles.errorMsg}>{errors.email}</span>}
           </div>
 
-          {/* SENHA */}
           <div style={styles.field}>
             <label style={styles.label}>Senha</label>
             <div style={styles.inputWrapper}>
@@ -136,7 +132,6 @@ function Cadastro() {
             {errors.senha && <span style={styles.errorMsg}>{errors.senha}</span>}
           </div>
 
-          {/* CONFIRMAR SENHA */}
           <div style={styles.field}>
             <label style={styles.label}>Confirme a Senha</label>
             <div style={styles.inputWrapper}>
@@ -154,7 +149,6 @@ function Cadastro() {
             {errors.confirmarSenha && <span style={styles.errorMsg}>{errors.confirmarSenha}</span>}
           </div>
 
-          {/* BOTÃO */}
           <button style={styles.btnSolid} onClick={handleSubmit}>Cadastrar</button>
 
         </div>

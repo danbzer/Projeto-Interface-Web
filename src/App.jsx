@@ -15,6 +15,7 @@ function App() {
       <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/perfil" element={<Perfil />} />
       <Route path="/home" element={<Home />} />
+      <Route path="/book" element={<BookPage />} />
     </Routes>
   )
 }

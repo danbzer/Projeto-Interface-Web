@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 
 function Home() {
   const navigate = useNavigate();
@@ -13,7 +14,6 @@ function Home() {
       <Header />
 
       <main style={styles.main}>
-        {/* ÁREA SUPERIOR: busca + menu */}
         <section style={styles.topArea}>
           <div style={styles.searchBox}>
             <span style={styles.searchIcon}>⌕</span>
@@ -50,7 +50,6 @@ function Home() {
           </div>
         </section>
 
-        {/* SAUDAÇÃO */}
         <section style={styles.greetingSection}>
           <h1 style={styles.greeting}>Olá, Xxxxxxxx!</h1>
           <p style={styles.question}>O que vamos ler hoje?</p>
@@ -63,9 +62,11 @@ function Home() {
           </p>
         </section>
 
-        {/* CARD PRINCIPAL */}
         <section style={styles.featureSection}>
-          <div style={styles.featureCard}>
+          <div
+            style={{ ...styles.featureCard, cursor: "pointer" }}
+            onClick={() => navigate('/livro')}
+          >
             <div style={styles.bigCover}>
               <span style={styles.coverText}>Capa</span>
             </div>
@@ -90,13 +91,16 @@ function Home() {
           </div>
         </section>
 
-        {/* SEÇÃO 1 */}
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>Porque você gosta de [Autor Escolhido]</h2>
 
           <div style={styles.bookRow}>
             {bookPlaceholders.map((item) => (
-              <article style={styles.smallCard} key={`autor-${item}`}>
+              <article
+                style={{ ...styles.smallCard, cursor: "pointer" }}
+                key={`autor-${item}`}
+                onClick={() => navigate('/livro')}
+              >
                 <div style={styles.smallCover}>
                   <span style={styles.smallCoverText}>Capa</span>
                 </div>
@@ -111,13 +115,16 @@ function Home() {
           </div>
         </section>
 
-        {/* SEÇÃO 2 */}
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>Baseados na sua vibe</h2>
 
           <div style={styles.bookRow}>
             {bookPlaceholders.map((item) => (
-              <article style={styles.smallCard} key={`vibe-${item}`}>
+              <article
+                style={{ ...styles.smallCard, cursor: "pointer" }}
+                key={`vibe-${item}`}
+                onClick={() => navigate('/livro')}
+              >
                 <div style={styles.smallCover}>
                   <span style={styles.smallCoverText}>Capa</span>
                 </div>
@@ -132,6 +139,8 @@ function Home() {
           </div>
         </section>
       </main>
+
+      <Footer />
     </div>
   );
 }
@@ -142,6 +151,8 @@ const styles = {
     backgroundColor: "#F8F6FF",
     fontFamily: "'PT Mono', monospace",
     color: "#301C54",
+    display: "flex",
+    flexDirection: "column",
   },
   main: {
     width: "100%",
@@ -149,6 +160,7 @@ const styles = {
     margin: "0 auto",
     padding: "28px 32px 56px",
     boxSizing: "border-box",
+    flex: 1,
   },
   topArea: {
     display: "flex",

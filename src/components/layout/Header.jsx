@@ -13,13 +13,13 @@ function Header({ isLoggedIn = false, user = null, showBack = false }) {
                 ←
             </button>
             )}
-      {/* LOGO */}
+            
       <div style={styles.logo}>
         <div style={styles.logoIcon}>📚</div>
         <span style={styles.logoText}>Books</span>
       </div>
 
-      {/* MENU só aparece quando logado */}
+      {/*modificar menu depois, menu tem que aparecer aqui*/}
       {isLoggedIn && (
         <div style={styles.userArea}>
           <nav style={{ display: menuOpen ? "flex" : "none", ...styles.nav }}>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
 import fundoImg from "../assets/images/fundo.jpg";
+import Footer from "../components/layout/Footer";
 
 function Login() {
   const navigate = useNavigate();
@@ -36,10 +37,8 @@ function Login() {
 
   return (
     <div style={styles.page}>
-      {/* IMAGEM DE FUNDO */}
       <div style={{ ...styles.bgImage, backgroundImage: `url(${fundoImg})` }} />
 
-      {/* CONTEÚDO */}
       <div style={styles.overlay}>
         <Header />
         <main style={styles.main}>
@@ -92,6 +91,7 @@ function Login() {
           </div>
 
         </main>
+        <Footer />
       </div>
     </div>
   );
@@ -119,6 +119,10 @@ const styles = {
   overlay: {
     position: "relative",
     zIndex: 1,
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
   },
   main: {
     display: "grid",
@@ -128,6 +132,8 @@ const styles = {
     maxWidth: "900px",
     margin: "0 auto",
     alignItems: "center",
+    width: "100%",
+    boxSizing: "border-box",
   },
   left: {
     display: "flex",
