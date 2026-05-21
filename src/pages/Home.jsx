@@ -40,7 +40,14 @@ function Home() {
           </div>
 
           <div className="user-area" ref={menuRef}>
-            <button className="profile-button" title="Meu perfil">👤</button>
+            {/* BOTÃO DO EMOJI DE USUÁRIO CONECTADO AO PERFIL */}
+            <button 
+              className="profile-button" 
+              title="Meu perfil"
+              onClick={() => navigate('/perfil')}
+            >
+              👤
+            </button>
 
             <button
               className="menu-button"
@@ -52,7 +59,10 @@ function Home() {
 
             {menuOpen && (
               <div className="dropdown-menu">
-                <button className="dropdown-item">Meu perfil</button>
+                {/* BOTÃO DO MENU DROPDOWN TAMBÉM CONECTADO AO PERFIL */}
+                <button className="dropdown-item" onClick={() => navigate('/perfil')}>
+                  Meu perfil
+                </button>
                 <button className="dropdown-item">Minha biblioteca</button>
                 <button className="dropdown-item">Minhas preferências</button>
                 <button 
@@ -68,7 +78,7 @@ function Home() {
 
         {/* SAUDAÇÃO */}
         <section className="greeting-section">
-          <h1 className="greeting-title">Olá, Xxxxxxxx!</h1>
+          <h1 className="greeting-title">Olá, Marcos!</h1>
           <p className="greeting-question">O que vamos ler hoje?</p>
           <p className="greeting-based-on">
             Baseado nas suas leituras recentes de{" "}
