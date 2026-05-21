@@ -55,7 +55,7 @@ const styles = {
     zIndex: 1,
   },
   container: {
-    maxWidth: "900px",
+    maxWidth: "1920px",
     margin: "0 auto",
     display: "flex",
     alignItems: "center",

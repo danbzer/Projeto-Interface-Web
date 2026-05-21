@@ -17,10 +17,17 @@ function BookPage() {
     description: "Espaço reservado para a sinopse ou descrição detalhada do livro selecionado."
   };
 
+  // controla o que o usuário escreve agora
   const [textoDigitado, setTextoDigitado] = useState('');
+  // guarda o que foi confirmado no botão
   const [textoSalvo, setTextoSalvo] = useState('');
+  
+  // Estado para controlar o status de leitura atual (Inicia como 'lido')
+  const [statusLeitura, setStatusLeitura] = useState('lido');
 
   const handleSalvar = () => {
+    // segurança extra da regra de negócio RN02
+    if (statusLeitura !== 'lido') return;
     console.log("Review salva:", textoDigitado);
     setTextoSalvo(textoDigitado);
   };
@@ -38,7 +45,7 @@ function BookPage() {
               <FaRegStar />
             </button>
             
-            {/* Trocado a tag <img> por uma <div> placeholder */}
+            {/* Trocado a tag <img> por uma <div> placeholder para a capa */}
             <div className="book-page-cover placeholder-cover">
               <span className="cover-text">Capa</span>
             </div>
@@ -54,16 +61,28 @@ function BookPage() {
         <section className="book-right-col">
           
           {/* Caixa de review */}
-          <div className="info-card review-card">
+          <div className="info-card review-card" style={{ opacity: statusLeitura === 'lido' ? 1 : 0.6, transition: 'opacity 0.2s' }}>
             <div className='card-header'>
               <h3>Minha Review</h3>
-              <button className='save-review-btn' onClick={handleSalvar}>Salvar</button>
+              <button 
+                className='save-review-btn' 
+                onClick={handleSalvar}
+                disabled={statusLeitura !== 'lido'}
+                style={{ 
+                  cursor: statusLeitura === 'lido' ? 'pointer' : 'not-allowed',
+                  backgroundColor: statusLeitura === 'lido' ? '#301C54' : '#999' 
+                }}
+              >
+                Salvar
+              </button>
             </div>
             <textarea
               className='input-review-text'
-              placeholder='Digite sua review aqui...'
+              placeholder={statusLeitura === 'lido' ? 'Digite sua review aqui...' : ''}
               onChange={(e) => setTextoDigitado(e.target.value)}
-              value={textoDigitado}
+              value={statusLeitura === 'lido' ? textoDigitado : ''}
+              disabled={statusLeitura !== 'lido'}
+              style={{ cursor: statusLeitura === 'lido' ? 'text' : 'not-allowed' }}
             ></textarea>
           </div>
 
@@ -75,7 +94,13 @@ function BookPage() {
               <span className="rating-number">4,5 de 5</span>
             </div>
             <div className="status-select-wrapper">
-              <select name="status" id="status" className='book-status-select'>
+              <select 
+                name="status" 
+                id="status" 
+                className='book-status-select'
+                value={statusLeitura}
+                onChange={(e) => setStatusLeitura(e.target.value)}
+              >
                 <option value="lido">Lido</option>
                 <option value="lendo">Lendo</option>
                 <option value="queroLer">Quero Ler</option>
@@ -84,14 +109,16 @@ function BookPage() {
             </div>
           </div>
 
-          {/* Caixa de data */}
-          <div className="info-card date-card">
-            <h3>Data de Término:</h3>
-            <div className="date-display">
-              <span className="calendar-emoji">&#128197;</span>
-              <span className="date-text">15/04/2026</span>
+          {/* Caixa de data: só mostra a data de término se o livro foi concluído */}
+          {statusLeitura === 'lido' && (
+            <div className="info-card date-card" style={{ animation: 'fadeIn 0.3s' }}>
+              <h3>Data de Término:</h3>
+              <div className="date-display">
+                <span className="calendar-emoji">&#128197;</span>
+                <span className="date-text">15/04/2026</span>
+              </div>
             </div>
-          </div>
+          )}
         </section>
       </main>
 

@@ -156,5 +156,3 @@ function Home() {
 }
 
 export default Home;
-
-import "./Home.css";
