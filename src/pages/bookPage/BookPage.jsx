@@ -1,14 +1,23 @@
-import React from 'react';
-import './bookPage.css';
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { FaRegStar } from "react-icons/fa";
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import { FaRegStar } from "react-icons/fa";
-import { useState } from 'react';
+import './bookPage.css';
 
 function BookPage() {
-    // controla o que o usuário escreve agora
+  // Coleta os dados enviados pela home através da rota
+  const location = useLocation();
+  
+  // Se não vier nenhum livro da home, usa dados genéricos de placeholder
+  const book = location.state || {
+    title: "Título do Livro",
+    author: "Autor",
+    genre: "Gênero",
+    description: "Espaço reservado para a sinopse ou descrição detalhada do livro selecionado."
+  };
+
   const [textoDigitado, setTextoDigitado] = useState('');
-    // guarda o que foi confirmado no botão
   const [textoSalvo, setTextoSalvo] = useState('');
 
   const handleSalvar = () => {
@@ -17,64 +26,79 @@ function BookPage() {
   };
 
   return (
-    <div className="container">
+    <div className="book-page-container">
       <Header showBack={true}/>
 
-      <div className='main-content'>
-        <div className='book-container'>
-          <button className="favorite-button"><FaRegStar /></button>
-          <div>
-            <img src="../src/assets/O_HOMEM_DE_GIZ.webp" alt="Capa do livro O Homem de Giz" className="book-cover" />
+      <main className='book-main-content'>
+        
+        {/* COLUNA DA ESQUERDA: CAPA E TAGS */}
+        <section className='book-left-col'>
+          <div className='cover-wrapper'>
+            <button className="book-favorite-button">
+              <FaRegStar />
+            </button>
+            
+            {/* Trocado a tag <img> por uma <div> placeholder */}
+            <div className="book-page-cover placeholder-cover">
+              <span className="cover-text">Capa</span>
+            </div>
           </div>
-          <div className="tags">
-            <span className="tag suspense">Suspense</span>
-            <span className="tag author">C.J. Tudor</span>
+          
+          <div className="book-tags">
+            <span className="book-tag genre">{book.genre}</span>
+            <span className="book-tag author">{book.author}</span>
           </div>
-        </div>
+        </section>
 
-        <div className="details-right-col">
-          <div className="info-box review-box">
-            <div className='review-box-header'>
+        {/* COLUNA DA DIREITA: CAIXAS DE INFORMAÇÃO */}
+        <section className="book-right-col">
+          
+          {/* Caixa de review */}
+          <div className="info-card review-card">
+            <div className='card-header'>
               <h3>Minha Review</h3>
-              <button className='save-review' onClick={handleSalvar}>Salvar</button>
+              <button className='save-review-btn' onClick={handleSalvar}>Salvar</button>
             </div>
             <textarea
-              name="review"
-              id=""
-              className='input-review'
+              className='input-review-text'
               placeholder='Digite sua review aqui...'
               onChange={(e) => setTextoDigitado(e.target.value)}
               value={textoDigitado}
             ></textarea>
           </div>
-          <div className="info-box status-box">
+
+          {/* Caixa de nota e status */}
+          <div className="info-card status-card">
             <h3>Minha Nota e Status de Leitura</h3>
-            <div className="rating">
-              <span className="stars">★★★★<span className="half-star">★</span></span>
-              <span className="rating-text">4,5 de 5</span>
+            <div className="book-rating">
+              <span className="book-stars">★★★★<span className="half-star">★</span></span>
+              <span className="rating-number">4,5 de 5</span>
             </div>
-            <div className="select-wrapper">
-              <select name="status" id="status" className='status-select'>
-                <option className='select-item' value="lido">Lido</option>
-                <option className='select-item' value="lendo">Lendo</option>
-                <option className='select-item' value="queroLer">Quero Ler</option>
-                <option className='select-item' value="abandonei">Abandonei</option>
+            <div className="status-select-wrapper">
+              <select name="status" id="status" className='book-status-select'>
+                <option value="lido">Lido</option>
+                <option value="lendo">Lendo</option>
+                <option value="queroLer">Quero Ler</option>
+                <option value="abandonei">Abandonei</option>
               </select>
             </div>
           </div>
-          <div className="info-box date-box">
+
+          {/* Caixa de data */}
+          <div className="info-card date-card">
             <h3>Data de Término:</h3>
-            <div className="date-content">
-              <span className="calendar-icon">&#128197;</span>
-              <span className="date">15/04/2026</span>
+            <div className="date-display">
+              <span className="calendar-emoji">&#128197;</span>
+              <span className="date-text">15/04/2026</span>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
 
-      <section className="book-description">
-        <h3 className='book-title'>O homem de giz</h3>
-        <p className='book-description-text'>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      {/* SEÇÃO INFERIOR: DETALHES DA OBRA */}
+      <section className="book-description-section">
+        <h2 className='book-page-title'>{book.title}</h2>
+        <p className='book-description-body'>{book.description}</p>
       </section>
 
       <Footer />

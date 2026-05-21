@@ -1,253 +1,272 @@
-.red { background-color: #ff5f56; }
-.yellow { background-color: #ffbd2e; }
-.green { background-color: #27c93f; }
-
-.container {
-  background-color: #7966CC;
-}
-
-.main-content {
-  display: flex;
-  gap: 30px;
-  padding: 20px;
-}
-
-.book-container {
-  position: relative;
-  width: 100%;
+/* Container geral alinhado com a home */
+.book-page-container {
+  min-height: 100vh;
+  background-color: #F8F6FF;
+  font-family: 'PT Mono', monospace;
+  color: #301C54;
   display: flex;
   flex-direction: column;
-  align-items: space-between;
 }
 
-.book-cover{
-  border-radius: 12px;
-}
-
-.favorite-button {
-  position: absolute;
-  top: 10px;
-  left: 66px;
-  width: 60px;
-  height: 60px;
-  border: none;
-  border-radius: 50%;
-  background: #e5e5e5;
-
+/* Área central */
+.book-main-content {
+  width: 100%;
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 28px 32px;
+  box-sizing: border-box;
   display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 33px;
-  color: #301C54;
-
-  cursor: pointer;
+  gap: 40px;
+  flex: 1;
 }
 
-.input-review {
-  width: 90%;
-  padding: 8px;
-  background: none;
-  border: none;
-  resize: none;
-  outline: none;
-  height: 60%;
-  font-size: 14px;
-  text-align: center;
-}
-
-textarea::placeholder {
-  color: #cfc7c7;
-}
-
-.review-box-header {
+/* Coluna da esquerda (Capa) */
+.book-left-col {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 10px;
+  flex-shrink: 0;
 }
 
-.save-review {
-  padding: 5px 15px;
-  background-color: #5c4d9b;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.save-review:hover {
-  background-color: #4f4386;
-}
-
-.status-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  
-  /* Estilização personalizada para ficar igual ao botão de status */
-  background-color: #e6d7ff; /* Cor roxa clara do seu protótipo */
-  color: #6b3fa0;           /* Cor do texto roxo escuro */
-  border: none;
-  padding: 10px 40px;       /* Padding lateral para o texto ficar centralizado */
-  border-radius: 20px;      /* Borda arredondada igual ao botão */
-  font-weight: 600;
-  cursor: pointer;
-  text-align: center;
-  outline: none;
-}
-
-.select-wrapper {
+.cover-wrapper {
   position: relative;
   display: inline-block;
 }
 
-.select-wrapper::after {
-  content: '▼';
-  font-size: 0.7rem;
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: #6b3fa0;
+.book-page-cover {
+  width: 220px;
+  height: 310px;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(48, 28, 84, 0.12);
 }
 
-.tags {
+.placeholder-cover {
+  background-color: #E5E0EA; 
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 15px;
+}
+
+.cover-text {
+  font-size: 14px;
+  color: #8A7E99;
+}
+
+/* Botão de favorito */
+.book-favorite-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #301C54;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.book-favorite-button:hover {
+  transform: scale(1.05);
+}
+
+/* Tags de gênero e autor */
+.book-tags {
+  display: flex;
+  gap: 10px;
   margin-top: 20px;
 }
 
-.tag {
-  padding: 8px 20px;
+.book-tag {
+  padding: 6px 14px;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 11px;
+  font-weight: bold;
 }
 
-.tag.suspense {
-  background-color: #d1e1ff;
-  color: #2c5dc5;
+.book-tag.genre {
+  background-color: #DFF0FF;
+  color: #326A9F;
 }
 
-.tag.author {
-  background-color: #ffd1d1;
-  color: #c52c2c;
+.book-tag.author {
+  background-color: #FFE1E8;
+  color: #9F3A5B;
 }
 
-/* Coluna Direita: Detalhes */
-.details-right-col {
+.book-right-col {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.info-box {
-  background-color: #6858b0;
-  width: 380px;
-  height: 120px;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 15px 20px;
+.info-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E8E0F0;
+  border-radius: 16px;
+  padding: 20px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(48, 28, 84, 0.02);
 }
 
-.info-box h3 {
-  align-self: flex-start;
-  text-align: start;
-  margin: 0 0 5px 0;
-  font-size: 16px;
-  color: white;
-}
-
-.review-box p {
-  text-align: center;
-  margin: 0;
+.info-card h3 {
+  margin: 0 0 12px 0;
   font-size: 13px;
-  line-height: 1.5;
-  color: white;
+  color: #8A7E99;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.status-box {
-  display: flex;
-  flex-direction: column; 
-  align-items: center;    
-  text-align: center;    
-  padding: 15px 20px;
-}
-
-.rating {
+/* Card de review */
+.review-card {
   display: flex;
   flex-direction: column;
+  height: 160px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
-.stars {
-  color: #ffcc00;
+.save-review-btn {
+  padding: 6px 16px;
+  background-color: #301C54;
+  color: #F8F6FF;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'PT Mono', monospace;
+  font-size: 11px;
+  transition: background-color 0.2s;
+}
+
+.save-review-btn:hover {
+  background-color: #4c307e;
+}
+
+.input-review-text {
+  width: 100%;
+  flex: 1;
+  padding: 8px 0;
+  background: transparent;
+  border: none;
+  resize: none;
+  outline: none;
+  font-family: 'PT Mono', monospace;
+  font-size: 13px;
+  color: #301C54;
+}
+
+/* Card de status e notas */
+.status-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.book-rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.book-stars {
+  color: #F2C94C;
   font-size: 18px;
 }
 
-.half-star {
-  color: #ccc;
-}
+.half-star { color: #D8D1E4; }
+.rating-number { font-size: 12px; color: #301C54; }
 
-.rating-text {
+/* Menu de seleção de status */
+.book-status-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: #E5E0EA;
+  color: #301C54;
+  border: none;
+  padding: 8px 36px 8px 16px;
+  border-radius: 20px;
+  font-family: 'PT Mono', monospace;
   font-size: 12px;
-  color: white;
-  margin-top: -6px;
+  cursor: pointer;
+  outline: none;
 }
 
-.status-tag.lido {
-  background-color: #e8d1ff;
-  color: #8c2cc5;
-  padding: 2px 35px;
-  margin-top: 5px;
-  border-radius: 15px;
-  font-size: 14px;
+.status-select-wrapper {
+  position: relative;
+  display: inline-block;
 }
 
-.date-box {
+.status-select-wrapper::after {
+  content: '▼';
+  font-size: 9px;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #301C54;
+}
+
+/* Card de data */
+.date-card {
   display: flex;
-  flex-direction: column; 
-  align-items: center;    
-  text-align: center;   
-  padding: 15px 20px;
-  gap: 17px;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.date-content {
+.date-card h3 { margin-bottom: 0; }
+
+.date-display {
   display: flex;
   align-items: center;
-  gap: 2px;
-  color: white;
+  gap: 8px;
 }
 
-.calendar-icon {
-  font-size: 18px;
+.calendar-emoji { font-size: 16px; }
+.date-text { font-size: 14px; color: #301C54; font-weight: bold; }
+
+/* Seção de descrição inferior */
+.book-description-section {
+  width: 100%;
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 0 32px 56px;
+  box-sizing: border-box;
 }
 
-.date {
-  font-size: 16px;
+.book-page-title {
+  font-size: 24px;
+  color: #1D1D1D;
+  margin: 0 0 12px 0;
 }
 
-/* Descrição Inferior */
-.book-description {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  margin-top: 30px;
-  padding: 0 0 0 80px;
-  text-align: start;
-}
-
-.book-description p {
-  font-size: 18px;
+.book-description-body {
+  font-size: 14px;
   line-height: 1.6;
-  color: white;
+  color: #555;
   margin: 0;
 }
 
-.book-title {
-  margin-left: 170px;
-  color: white;
+/* Responsividade básica */
+@media (max-width: 768px) {
+  .book-main-content {
+    flex-direction: column;
+  }
+  .book-left-col {
+    align-items: center;
+  }
 }
