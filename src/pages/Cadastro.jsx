@@ -2,6 +2,21 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
 
+const EyeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
+    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+    <line x1="1" y1="1" x2="23" y2="23"/>
+  </svg>
+);
+
 function Cadastro() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -60,7 +75,7 @@ function Cadastro() {
 
   const handleSubmit = () => {
     if (validate()) {
-      navigate('/home');
+      navigate('/perfil');
     }
   };
 
@@ -126,7 +141,7 @@ function Cadastro() {
                 style={{ ...styles.input, border: errors.senha ? "2px solid #ff4d4d" : "none" }}
               />
               <button style={styles.eyeBtn} onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? "👁️" : "🙈"}
+                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
             {errors.senha && <span style={styles.errorMsg}>{errors.senha}</span>}
@@ -143,7 +158,7 @@ function Cadastro() {
                 style={{ ...styles.input, border: errors.confirmarSenha ? "2px solid #ff4d4d" : "none" }}
               />
               <button style={styles.eyeBtn} onClick={() => setShowConfirm(!showConfirm)}>
-                {showConfirm ? "👁️" : "🙈"}
+                {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
             {errors.confirmarSenha && <span style={styles.errorMsg}>{errors.confirmarSenha}</span>}
@@ -215,7 +230,10 @@ const styles = {
     background: "none",
     border: "none",
     cursor: "pointer",
-    fontSize: "16px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "0",
   },
   errorMsg: {
     fontSize: "12px",

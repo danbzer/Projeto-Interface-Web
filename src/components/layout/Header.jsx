@@ -1,45 +1,77 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Header({ isLoggedIn = false, user = null, showBack = false }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  const navigate = useNavigate();
+
+  // fecha o dropdown ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header style={styles.header}>
-        {showBack && (
-            <button
-                onClick={() => window.history.back()}
-                style={styles.backBtn}
-            >
-                ←
-            </button>
-            )}
-            
+
+      {/* Botão voltar */}
+      {showBack && (
+        <button onClick={() => window.history.back()} style={styles.backBtn}>
+          ←
+        </button>
+      )}
+
+      {/* Logo — sempre centralizada */}
       <div style={styles.logo}>
-        <div style={styles.logoIcon}>📚</div>
+        <span style={styles.logoIcon}>📚</span>
         <span style={styles.logoText}>Books</span>
       </div>
 
-      {/*modificar menu depois, menu tem que aparecer aqui*/}
+      {/* Área do usuário (só quando logado) */}
       {isLoggedIn && (
-        <div style={styles.userArea}>
-          <nav style={{ display: menuOpen ? "flex" : "none", ...styles.nav }}>
-            <a href="/" style={styles.navLink}>Início</a>
-            <a href="/discover" style={styles.navLink}>Explorar</a>
-            <a href="/shelf" style={styles.navLink}>Minha Estante</a>
-          </nav>
-          <button
-            style={styles.avatar}
-            onClick={() => setMenuOpen(!menuOpen)}
-            title="Menu"
-          >
-            {user?.photo ? (
-              <img src={user.photo} alt="Foto do usuário" style={styles.avatarImg} />
-            ) : (
-              <span style={styles.avatarPlaceholder}>
-                {user?.name?.charAt(0) || "U"}
-              </span>
-            )}
+        <div style={styles.userArea} ref={menuRef}>
+
+          {/* Ícone de perfil */}
+          <button style={styles.iconBtn} title="Meu perfil" onClick={() => navigate("/perfil")}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D6C083" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
           </button>
+
+          {/* Ícone de menu */}
+          <button style={styles.iconBtn} title="Menu" onClick={() => setMenuOpen(!menuOpen)}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D6C083" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+
+          {/* Dropdown */}
+          {menuOpen && (
+            <div style={styles.dropdown}>
+              <button style={styles.dropdownItem} onClick={() => { navigate("/home"); setMenuOpen(false); }}>
+                Início
+              </button>
+              <button style={styles.dropdownItem} onClick={() => { navigate("/discover"); setMenuOpen(false); }}>
+                Explorar
+              </button>
+              <button style={styles.dropdownItem} onClick={() => { navigate("/shelf"); setMenuOpen(false); }}>
+                Minha Estante
+              </button>
+              <div style={styles.divider} />
+              <button style={{ ...styles.dropdownItem, color: "#ff6b6b" }} onClick={() => navigate("/")}>
+                Sair
+              </button>
+            </div>
+          )}
         </div>
       )}
     </header>
@@ -67,15 +99,13 @@ const styles = {
     color: "#D6C083",
     fontSize: "22px",
     cursor: "pointer",
-    },
+  },
   logo: {
     display: "flex",
     alignItems: "center",
     gap: "10px",
   },
-  logoIcon: {
-    fontSize: "24px",
-  },
+  logoIcon: { fontSize: "24px" },
   logoText: {
     fontFamily: "'Homemade Apple', cursive",
     fontSize: "20px",
@@ -85,43 +115,54 @@ const styles = {
   },
   userArea: {
     position: "absolute",
-    right: "32px",
+    right: "24px",
     display: "flex",
     alignItems: "center",
-    gap: "16px",
+    gap: "4px",
   },
-  nav: {
-    flexDirection: "row",
-    gap: "24px",
-    alignItems: "center",
-  },
-  navLink: {
-    textDecoration: "none",
-    color: "#2c2c2c",
-    fontSize: "14px",
-    fontWeight: "500",
-  },
-  avatar: {
+  iconBtn: {
     width: "38px",
     height: "38px",
     borderRadius: "50%",
     backgroundColor: "#2c2c2c",
     border: "none",
+    backgroundColor: "transparent",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    overflow: "hidden",
+    transition: "background-color 0.2s",
   },
-  avatarImg: {
+  dropdown: {
+    position: "absolute",
+    top: "48px",
+    right: "0",
+    width: "190px",
+    backgroundColor: "#fff",
+    borderRadius: "14px",
+    padding: "8px",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+    zIndex: 200,
+    display: "flex",
+    flexDirection: "column",
+    gap: "2px",
+  },
+  dropdownItem: {
+    border: "none",
+    backgroundColor: "transparent",
+    textAlign: "left",
+    cursor: "pointer",
+    padding: "10px 12px",
+    borderRadius: "8px",
+    fontFamily: "'PT Mono', monospace",
+    fontSize: "13px",
+    color: "#301C54",
     width: "100%",
-    height: "100%",
-    objectFit: "cover",
   },
-  avatarPlaceholder: {
-    color: "#fff",
-    fontSize: "16px",
-    fontWeight: "600",
+  divider: {
+    height: "1px",
+    backgroundColor: "#E8E0F0",
+    margin: "4px 0",
   },
 };
 
