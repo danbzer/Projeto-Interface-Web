@@ -1,0 +1,194 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Header from "../components/layout/Header";
+
+const EyeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
+    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+    <line x1="1" y1="1" x2="23" y2="23"/>
+  </svg>
+);
+
+function LoginForm() {
+  const navigate = useNavigate();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!email) {
+      newErrors.email = "E-mail é obrigatório.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "E-mail inválido.";
+    }
+
+    // validaçao pras senha obrigatoria com min 6 caracteres 
+    if (!password) {
+      newErrors.password = "Senha é obrigatória.";
+    } else if (password.length < 6) {
+      newErrors.password = "A senha deve conter no mínimo 6 caracteres.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (validate()) {
+      navigate("/home");
+    }
+  };
+
+  return (
+    <div style={styles.page}>
+      <Header showBack={true} />
+
+      <main style={styles.main}>
+        <h2 style={styles.title}>Entrar</h2>
+
+        <div style={styles.form}>
+          {/* email */}
+          <div style={styles.field}>
+            <label style={styles.label}>E-mail</label>
+            <input
+              type="email"
+              placeholder="Digite aqui..."
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                ...styles.input,
+                border: errors.email ? "2px solid #ff4d4d" : "none",
+              }}
+            />
+            {errors.email && <span style={styles.errorMsg}>{errors.email}</span>}
+          </div>
+
+          {/* senha */}
+          <div style={styles.field}>
+            <label style={styles.label}>Senha</label>
+            <div style={styles.inputWrapper}>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Digite aqui..."
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{
+                  ...styles.input,
+                  border: errors.password ? "2px solid #ff4d4d" : "none",
+                }}
+              />
+              <button
+                style={styles.eyeBtn}
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? "Esconder senha" : "Mostrar senha"}
+              >
+                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+              </button>
+            </div>
+            {errors.password && <span style={styles.errorMsg}>{errors.password}</span>}
+          </div>
+
+          <button style={styles.btnSolid} onClick={handleSubmit}>Entrar</button>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    backgroundColor: "#7966CC",
+    fontFamily: "'PT Mono', monospace",
+  },
+  main: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "60px 40px",
+    gap: "24px",
+  },
+  title: {
+    fontSize: "20px",
+    color: "#F5F0FF",
+    fontWeight: "400",
+    margin: "0",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+    width: "100%",
+    maxWidth: "360px",
+  },
+  field: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+  },
+  label: {
+    fontSize: "14px",
+    color: "#F5F0FF",
+  },
+  inputWrapper: {
+    position: "relative",
+  },
+  input: {
+    width: "100%",
+    padding: "14px 20px",
+    borderRadius: "30px",
+    border: "none",
+    backgroundColor: "#d0d0d0",
+    fontSize: "14px",
+    fontFamily: "'PT Mono', monospace",
+    color: "#333",
+    boxSizing: "border-box",
+    outline: "none",
+  },
+  eyeBtn: {
+    position: "absolute",
+    right: "16px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "0",
+  },
+  btnSolid: {
+    width: "100%",
+    padding: "16px",
+    borderRadius: "30px",
+    backgroundColor: "#301C54",
+    color: "#fff",
+    border: "none",
+    fontFamily: "'PT Mono', monospace",
+    fontSize: "18px",
+    cursor: "pointer",
+    marginTop: "16px",
+  },
+  errorMsg: {
+    fontSize: "12px",
+    color: "#ff4d4d",
+    marginTop: "4px",
+    paddingLeft: "12px",
+  },
+};
+
+export default LoginForm;

@@ -1,0 +1,280 @@
+/* Layout Principal */
+.home-page {
+  min-height: 100vh;
+  background-color: #F8F6FF;
+  font-family: 'PT Mono', monospace;
+  color: #301C54;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-main {
+  width: 100%;
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 28px 32px 56px;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+/* Área do Topo (Busca e Usuário) */
+.top-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 34px;
+}
+
+.search-box {
+  flex: 1;
+  max-width: 520px;
+  height: 38px;
+  background-color: #E5E0EA;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  margin: 0 auto;
+  transition: box-shadow 0.2s ease;
+}
+
+.search-box:focus-within {
+  box-shadow: 0 0 0 2px #301C54; /* Destaque de acessibilidade ao clicar */
+}
+
+.search-icon {
+  color: #8A7E99;
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.search-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  font-family: 'PT Mono', monospace;
+  font-size: 12px;
+  color: #301C54;
+}
+
+/* Área do Usuário e Dropdown */
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.profile-button, .menu-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background-color: #E5E0EA;
+  color: #301C54;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.profile-button:hover, .menu-button:hover {
+  background-color: #D5D0DA;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  width: 180px;
+  background-color: #D5D0DA;
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dropdown-item {
+  border: none;
+  background-color: transparent;
+  text-align: left;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  font-family: 'PT Mono', monospace;
+  font-size: 11px;
+  color: #301C54;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.dropdown-item.danger {
+  color: #ff4d4d;
+}
+
+/* Seção de Saudação */
+.greeting-section { margin-bottom: 34px; }
+.greeting-title { font-size: 28px; margin: 0 0 4px; color: #1D1D1D; }
+.greeting-question { font-size: 16px; margin: 0 0 18px; color: #1D1D1D; }
+.greeting-based-on { font-size: 12px; color: #1D1D1D; margin: 0; }
+
+.tag-blue {
+  background-color: #DFF0FF;
+  color: #326A9F;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+.tag-pink {
+  background-color: #FFE1E8;
+  color: #9F3A5B;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+/* Card de Destaque */
+.feature-section { margin-bottom: 40px; }
+
+.feature-card {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 20px;
+  background-color: #FFFFFF;
+  border: 1px solid #E8E0F0;
+  border-radius: 16px;
+  padding: 18px;
+  max-width: 650px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(48, 28, 84, 0.08);
+}
+
+.big-cover {
+  height: 210px;
+  border-radius: 10px;
+  background-color: #301C54;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cover-text {
+  color: #F5F0FF;
+  font-size: 13px;
+}
+
+/* Skeletons */
+.feature-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.skeleton-title { width: 70%; height: 18px; background-color: #D8D1E4; border-radius: 8px; }
+.skeleton-author { width: 42%; height: 12px; background-color: #E8E0F0; border-radius: 8px; margin-bottom: 10px; }
+.skeleton-text-lines { display: flex; flex-direction: column; gap: 8px; }
+.skeleton-line { width: 100%; height: 10px; background-color: #E8E0F0; border-radius: 8px; }
+.skeleton-line.short { width: 70%; }
+
+/* Dots do Carrossel - Agora centralizados corretamente */
+.carousel-dots {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  max-width: 650px;
+  justify-content: center; /* Centraliza relativo ao card principal */
+}
+
+.dot {
+  width: 36px;
+  height: 4px;
+  background-color: #D8D1E4;
+  border-radius: 20px;
+  transition: background-color 0.3s;
+}
+
+.dot.active {
+  width: 48px;
+  background-color: #301C54;
+}
+
+/* Fileiras de Livros (Carrossel Horizontal) */
+.books-section { margin-top: 34px; }
+.section-title { font-size: 14px; color: #1D1D1D; margin-bottom: 16px; }
+
+.book-row {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  /* Esconde a barra de rolagem mas mantém a funcionalidade */
+  scrollbar-width: none; 
+}
+.book-row::-webkit-scrollbar {
+  display: none;
+}
+
+.small-card {
+  min-width: 180px;
+  background-color: #FFFFFF;
+  border: 1px solid #E8E0F0;
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.small-card:hover {
+  transform: translateY(-2px);
+  border-color: #D8D1E4;
+}
+
+.small-cover {
+  width: 60px;
+  height: 86px;
+  background-color: #301C54;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.small-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.skeleton-small-title { width: 90%; height: 10px; background-color: #D8D1E4; border-radius: 8px; }
+.skeleton-small-author { width: 65%; height: 8px; background-color: #E8E0F0; border-radius: 8px; }
+.small-stars { font-size: 10px; color: #F2C94C; letter-spacing: 1px; }
+
+/* Responsividade Básica */
+@media (max-width: 768px) {
+  .feature-card {
+    grid-template-columns: 1fr; /* Capa e texto empilhados no celular */
+  }
+  .big-cover {
+    height: 160px;
+  }
+}

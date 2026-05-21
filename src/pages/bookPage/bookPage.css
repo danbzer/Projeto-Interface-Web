@@ -1,0 +1,253 @@
+.red { background-color: #ff5f56; }
+.yellow { background-color: #ffbd2e; }
+.green { background-color: #27c93f; }
+
+.container {
+  background-color: #7966CC;
+}
+
+.main-content {
+  display: flex;
+  gap: 30px;
+  padding: 20px;
+}
+
+.book-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: space-between;
+}
+
+.book-cover{
+  border-radius: 12px;
+}
+
+.favorite-button {
+  position: absolute;
+  top: 10px;
+  left: 66px;
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  background: #e5e5e5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 33px;
+  color: #301C54;
+
+  cursor: pointer;
+}
+
+.input-review {
+  width: 90%;
+  padding: 8px;
+  background: none;
+  border: none;
+  resize: none;
+  outline: none;
+  height: 60%;
+  font-size: 14px;
+  text-align: center;
+}
+
+textarea::placeholder {
+  color: #cfc7c7;
+}
+
+.review-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.save-review {
+  padding: 5px 15px;
+  background-color: #5c4d9b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.save-review:hover {
+  background-color: #4f4386;
+}
+
+.status-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  
+  /* Estilização personalizada para ficar igual ao botão de status */
+  background-color: #e6d7ff; /* Cor roxa clara do seu protótipo */
+  color: #6b3fa0;           /* Cor do texto roxo escuro */
+  border: none;
+  padding: 10px 40px;       /* Padding lateral para o texto ficar centralizado */
+  border-radius: 20px;      /* Borda arredondada igual ao botão */
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  outline: none;
+}
+
+.select-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.select-wrapper::after {
+  content: '▼';
+  font-size: 0.7rem;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #6b3fa0;
+}
+
+.tags {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.tag {
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.tag.suspense {
+  background-color: #d1e1ff;
+  color: #2c5dc5;
+}
+
+.tag.author {
+  background-color: #ffd1d1;
+  color: #c52c2c;
+}
+
+/* Coluna Direita: Detalhes */
+.details-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-box {
+  background-color: #6858b0;
+  width: 380px;
+  height: 120px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 15px 20px;
+}
+
+.info-box h3 {
+  align-self: flex-start;
+  text-align: start;
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  color: white;
+}
+
+.review-box p {
+  text-align: center;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: white;
+}
+
+.status-box {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;    
+  text-align: center;    
+  padding: 15px 20px;
+}
+
+.rating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stars {
+  color: #ffcc00;
+  font-size: 18px;
+}
+
+.half-star {
+  color: #ccc;
+}
+
+.rating-text {
+  font-size: 12px;
+  color: white;
+  margin-top: -6px;
+}
+
+.status-tag.lido {
+  background-color: #e8d1ff;
+  color: #8c2cc5;
+  padding: 2px 35px;
+  margin-top: 5px;
+  border-radius: 15px;
+  font-size: 14px;
+}
+
+.date-box {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;    
+  text-align: center;   
+  padding: 15px 20px;
+  gap: 17px;
+}
+
+.date-content {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: white;
+}
+
+.calendar-icon {
+  font-size: 18px;
+}
+
+.date {
+  font-size: 16px;
+}
+
+/* Descrição Inferior */
+.book-description {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 30px;
+  padding: 0 0 0 80px;
+  text-align: start;
+}
+
+.book-description p {
+  font-size: 18px;
+  line-height: 1.6;
+  color: white;
+  margin: 0;
+}
+
+.book-title {
+  margin-left: 170px;
+  color: white;
+}
