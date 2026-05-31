@@ -175,6 +175,7 @@ function Home() {
 
       <main style={styles.main}>
 
+<<<<<<< HEAD
         {/* ── Search ── */}
         <div style={styles.searchBox}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A7E99" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
@@ -194,6 +195,50 @@ function Home() {
           <h1 style={styles.greeting}>Olá, {mockUser.name}!</h1>
           <p style={styles.question}>O que vamos ler hoje?</p>
           <p style={styles.basedText}>
+=======
+          <div className="user-area" ref={menuRef}>
+            {/* BOTÃO DO EMOJI DE USUÁRIO CONECTADO AO PERFIL */}
+            <button 
+              className="profile-button" 
+              title="Meu perfil"
+              onClick={() => navigate('/perfil')}
+            >
+              👤
+            </button>
+
+            <button
+              className="menu-button"
+              onClick={() => setMenuOpen(!menuOpen)}
+              title="Abrir menu"
+            >
+              ☰
+            </button>
+
+            {menuOpen && (
+              <div className="dropdown-menu">
+                {/* BOTÃO DO MENU DROPDOWN TAMBÉM CONECTADO AO PERFIL */}
+                <button className="dropdown-item" onClick={() => navigate('/perfil')}>
+                  Meu perfil
+                </button>
+                <button className="dropdown-item">Minha biblioteca</button>
+                <button className="dropdown-item">Minhas preferências</button>
+                <button 
+                  className="dropdown-item danger" 
+                  onClick={() => navigate('/')}
+                >
+                  Sair
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* SAUDAÇÃO */}
+        <section className="greeting-section">
+          <h1 className="greeting-title">Olá, Marcos!</h1>
+          <p className="greeting-question">O que vamos ler hoje?</p>
+          <p className="greeting-based-on">
+>>>>>>> e795a4208479e6cd064e1b3e08311f1c1dd2a2f4
             Baseado nas suas leituras recentes de{" "}
             <span style={{ ...styles.tag, backgroundColor: "#DFF0FF", color: "#326A9F" }}>Suspense</span>
             {" "}e{" "}
@@ -292,6 +337,7 @@ function Home() {
   );
 }
 
+<<<<<<< HEAD
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = {
@@ -519,3 +565,6 @@ const styles = {
 };
 
 export default Home;
+=======
+export default Home;
+>>>>>>> e795a4208479e6cd064e1b3e08311f1c1dd2a2f4

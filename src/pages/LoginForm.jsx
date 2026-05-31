@@ -34,8 +34,11 @@ function LoginForm() {
       newErrors.email = "E-mail inválido.";
     }
 
+    // validaçao pras senha obrigatoria com min 6 caracteres 
     if (!password) {
       newErrors.password = "Senha é obrigatória.";
+    } else if (password.length < 6) {
+      newErrors.password = "A senha deve conter no mínimo 6 caracteres.";
     }
 
     setErrors(newErrors);

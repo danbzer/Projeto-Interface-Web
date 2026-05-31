@@ -1,80 +1,131 @@
-import React from 'react';
-import './bookPage.css';
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { FaRegStar } from "react-icons/fa";
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import { FaRegStar } from "react-icons/fa";
-import { useState } from 'react';
+import './bookPage.css';
 
 function BookPage() {
-    // controla o que o usuário escreve agora
+  // Coleta os dados enviados pela home através da rota
+  const location = useLocation();
+  
+  // Se não vier nenhum livro da home, usa dados genéricos de placeholder
+  const book = location.state || {
+    title: "Título do Livro",
+    author: "Autor",
+    genre: "Gênero",
+    description: "Espaço reservado para a sinopse ou descrição detalhada do livro selecionado."
+  };
+
+  // controla o que o usuário escreve agora
   const [textoDigitado, setTextoDigitado] = useState('');
-    // guarda o que foi confirmado no botão
+  // guarda o que foi confirmado no botão
   const [textoSalvo, setTextoSalvo] = useState('');
+  
+  // Estado para controlar o status de leitura atual (Inicia como 'lido')
+  const [statusLeitura, setStatusLeitura] = useState('lido');
 
   const handleSalvar = () => {
+    // segurança extra da regra de negócio RN02
+    if (statusLeitura !== 'lido') return;
     console.log("Review salva:", textoDigitado);
     setTextoSalvo(textoDigitado);
   };
 
   return (
-    <div className="container">
+    <div className="book-page-container">
       <Header showBack={true}/>
 
-      <div className='main-content'>
-        <div className='book-container'>
-          <button className="favorite-button"><FaRegStar /></button>
-          <div>
-            <img src="../src/assets/O_HOMEM_DE_GIZ.webp" alt="Capa do livro O Homem de Giz" className="book-cover" />
+      <main className='book-main-content'>
+        
+        {/* COLUNA DA ESQUERDA: CAPA E TAGS */}
+        <section className='book-left-col'>
+          <div className='cover-wrapper'>
+            <button className="book-favorite-button">
+              <FaRegStar />
+            </button>
+            
+            {/* Trocado a tag <img> por uma <div> placeholder para a capa */}
+            <div className="book-page-cover placeholder-cover">
+              <span className="cover-text">Capa</span>
+            </div>
           </div>
-          <div className="tags">
-            <span className="tag suspense">Suspense</span>
-            <span className="tag author">C.J. Tudor</span>
+          
+          <div className="book-tags">
+            <span className="book-tag genre">{book.genre}</span>
+            <span className="book-tag author">{book.author}</span>
           </div>
-        </div>
+        </section>
 
-        <div className="details-right-col">
-          <div className="info-box review-box">
-            <div className='review-box-header'>
+        {/* COLUNA DA DIREITA: CAIXAS DE INFORMAÇÃO */}
+        <section className="book-right-col">
+          
+          {/* Caixa de review */}
+          <div className="info-card review-card" style={{ opacity: statusLeitura === 'lido' ? 1 : 0.6, transition: 'opacity 0.2s' }}>
+            <div className='card-header'>
               <h3>Minha Review</h3>
-              <button className='save-review' onClick={handleSalvar}>Salvar</button>
+              <button 
+                className='save-review-btn' 
+                onClick={handleSalvar}
+                disabled={statusLeitura !== 'lido'}
+                style={{ 
+                  cursor: statusLeitura === 'lido' ? 'pointer' : 'not-allowed',
+                  backgroundColor: statusLeitura === 'lido' ? '#301C54' : '#999' 
+                }}
+              >
+                Salvar
+              </button>
             </div>
             <textarea
-              name="review"
-              id=""
-              className='input-review'
-              placeholder='Digite sua review aqui...'
+              className='input-review-text'
+              placeholder={statusLeitura === 'lido' ? 'Digite sua review aqui...' : ''}
               onChange={(e) => setTextoDigitado(e.target.value)}
-              value={textoDigitado}
+              value={statusLeitura === 'lido' ? textoDigitado : ''}
+              disabled={statusLeitura !== 'lido'}
+              style={{ cursor: statusLeitura === 'lido' ? 'text' : 'not-allowed' }}
             ></textarea>
           </div>
-          <div className="info-box status-box">
+
+          {/* Caixa de nota e status */}
+          <div className="info-card status-card">
             <h3>Minha Nota e Status de Leitura</h3>
-            <div className="rating">
-              <span className="stars">★★★★<span className="half-star">★</span></span>
-              <span className="rating-text">4,5 de 5</span>
+            <div className="book-rating">
+              <span className="book-stars">★★★★<span className="half-star">★</span></span>
+              <span className="rating-number">4,5 de 5</span>
             </div>
-            <div className="select-wrapper">
-              <select name="status" id="status" className='status-select'>
-                <option className='select-item' value="lido">Lido</option>
-                <option className='select-item' value="lendo">Lendo</option>
-                <option className='select-item' value="queroLer">Quero Ler</option>
-                <option className='select-item' value="abandonei">Abandonei</option>
+            <div className="status-select-wrapper">
+              <select 
+                name="status" 
+                id="status" 
+                className='book-status-select'
+                value={statusLeitura}
+                onChange={(e) => setStatusLeitura(e.target.value)}
+              >
+                <option value="lido">Lido</option>
+                <option value="lendo">Lendo</option>
+                <option value="queroLer">Quero Ler</option>
+                <option value="abandonei">Abandonei</option>
               </select>
             </div>
           </div>
-          <div className="info-box date-box">
-            <h3>Data de Término:</h3>
-            <div className="date-content">
-              <span className="calendar-icon">&#128197;</span>
-              <span className="date">15/04/2026</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <section className="book-description">
-        <h3 className='book-title'>O homem de giz</h3>
-        <p className='book-description-text'>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+          {/* Caixa de data: só mostra a data de término se o livro foi concluído */}
+          {statusLeitura === 'lido' && (
+            <div className="info-card date-card" style={{ animation: 'fadeIn 0.3s' }}>
+              <h3>Data de Término:</h3>
+              <div className="date-display">
+                <span className="calendar-emoji">&#128197;</span>
+                <span className="date-text">15/04/2026</span>
+              </div>
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* SEÇÃO INFERIOR: DETALHES DA OBRA */}
+      <section className="book-description-section">
+        <h2 className='book-page-title'>{book.title}</h2>
+        <p className='book-description-body'>{book.description}</p>
       </section>
 
       <Footer />
