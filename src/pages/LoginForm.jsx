@@ -34,7 +34,6 @@ function LoginForm() {
       newErrors.email = "E-mail inválido.";
     }
 
-    // validaçao pras senha obrigatoria com min 6 caracteres 
     if (!password) {
       newErrors.password = "Senha é obrigatória.";
     } else if (password.length < 6) {
@@ -49,6 +48,27 @@ function LoginForm() {
     if (validate()) {
       navigate("/home");
     }
+  };
+
+  // Helper para renderizar a dica de senha em tempo real
+  const renderPasswordHint = () => {
+    // Se o usuário já tentou submeter e tem um erro estático de senha obrigatória, mantém ele
+    if (errors.password && !password) return null;
+
+    if (password.length > 0 && password.length < 6) {
+      return (
+        <span style={{ ...styles.hintMsg, color: "#FFD066" }}>
+          ⚠️ Mínimo de 6 caracteres (restam {6 - password.length})
+        </span>
+      );
+    } else if (password.length >= 6) {
+      return (
+        <span style={{ ...styles.hintMsg, color: "#66FF99" }}>
+          ✅ Senha válida!
+        </span>
+      );
+    }
+    return null;
   };
 
   return (
@@ -83,7 +103,11 @@ function LoginForm() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Digite aqui..."
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  // Limpa o erro estático de senha assim que o usuário digita para a dica assumir
+                  if (errors.password) setErrors(prev => ({ ...prev, password: null }));
+                }}
                 style={{
                   ...styles.input,
                   border: errors.password ? "2px solid #ff4d4d" : "none",
@@ -97,6 +121,8 @@ function LoginForm() {
                 {showPassword ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
+            {/* Exibe o feedback em tempo real ou a mensagem de erro tradicional */}
+            {renderPasswordHint()}
             {errors.password && <span style={styles.errorMsg}>{errors.password}</span>}
           </div>
 
@@ -188,6 +214,13 @@ const styles = {
     color: "#ff4d4d",
     marginTop: "4px",
     paddingLeft: "12px",
+  },
+  hintMsg: {
+    fontSize: "11px",
+    marginTop: "5px",
+    paddingLeft: "12px",
+    fontWeight: "600",
+    transition: "color 0.2s ease",
   },
 };
 

@@ -162,6 +162,7 @@ function Home() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [featured, setFeatured] = useState(0);
+  const [hoveredBookId, setHoveredBookId] = useState(null);
   const rowRef1 = useRef(null);
   const rowRef2 = useRef(null);
 
@@ -175,11 +176,10 @@ function Home() {
 
       <main style={styles.main}>
 
-<<<<<<< HEAD
         {/* ── Search ── */}
         <div style={styles.searchBox}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A7E99" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
             style={styles.searchInput}
@@ -195,50 +195,6 @@ function Home() {
           <h1 style={styles.greeting}>Olá, {mockUser.name}!</h1>
           <p style={styles.question}>O que vamos ler hoje?</p>
           <p style={styles.basedText}>
-=======
-          <div className="user-area" ref={menuRef}>
-            {/* BOTÃO DO EMOJI DE USUÁRIO CONECTADO AO PERFIL */}
-            <button 
-              className="profile-button" 
-              title="Meu perfil"
-              onClick={() => navigate('/perfil')}
-            >
-              👤
-            </button>
-
-            <button
-              className="menu-button"
-              onClick={() => setMenuOpen(!menuOpen)}
-              title="Abrir menu"
-            >
-              ☰
-            </button>
-
-            {menuOpen && (
-              <div className="dropdown-menu">
-                {/* BOTÃO DO MENU DROPDOWN TAMBÉM CONECTADO AO PERFIL */}
-                <button className="dropdown-item" onClick={() => navigate('/perfil')}>
-                  Meu perfil
-                </button>
-                <button className="dropdown-item">Minha biblioteca</button>
-                <button className="dropdown-item">Minhas preferências</button>
-                <button 
-                  className="dropdown-item danger" 
-                  onClick={() => navigate('/')}
-                >
-                  Sair
-                </button>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* SAUDAÇÃO */}
-        <section className="greeting-section">
-          <h1 className="greeting-title">Olá, Marcos!</h1>
-          <p className="greeting-question">O que vamos ler hoje?</p>
-          <p className="greeting-based-on">
->>>>>>> e795a4208479e6cd064e1b3e08311f1c1dd2a2f4
             Baseado nas suas leituras recentes de{" "}
             <span style={{ ...styles.tag, backgroundColor: "#DFF0FF", color: "#326A9F" }}>Suspense</span>
             {" "}e{" "}
@@ -295,7 +251,16 @@ function Home() {
             <button style={styles.arrowBtn} onClick={() => scroll(rowRef1, -1)}>‹</button>
             <div ref={rowRef1} style={styles.bookRow}>
               {booksByAuthor.map((book) => (
-                <article key={book.id} style={styles.smallCard} onClick={() => navigate("/livro")}>
+                <article
+                  key={book.id}
+                  onClick={() => navigate("/livro")}
+                  onMouseEnter={() => setHoveredBookId(`author-${book.id}`)}
+                  onMouseLeave={() => setHoveredBookId(null)}
+                  style={{
+                    ...styles.smallCard,
+                    ...(hoveredBookId === `author-${book.id}` ? styles.smallCardHover : {})
+                  }}
+                >
                   <CoverImg src={book.cover} style={styles.smallCover} />
                   <div style={styles.smallInfo}>
                     <p style={styles.smallTitle}>{book.title}</p>
@@ -316,7 +281,16 @@ function Home() {
             <button style={styles.arrowBtn} onClick={() => scroll(rowRef2, -1)}>‹</button>
             <div ref={rowRef2} style={styles.bookRow}>
               {vibeBooks.map((book) => (
-                <article key={book.id} style={styles.smallCard} onClick={() => navigate("/livro")}>
+                <article
+                  key={book.id}
+                  onClick={() => navigate("/livro")}
+                  onMouseEnter={() => setHoveredBookId(`vibe-${book.id}`)}
+                  onMouseLeave={() => setHoveredBookId(null)}
+                  style={{
+                    ...styles.smallCard,
+                    ...(hoveredBookId === `vibe-${book.id}` ? styles.smallCardHover : {})
+                  }}
+                >
                   <CoverImg src={book.cover} style={styles.smallCover} />
                   <div style={styles.smallInfo}>
                     <p style={styles.smallTitle}>{book.title}</p>
@@ -337,7 +311,6 @@ function Home() {
   );
 }
 
-<<<<<<< HEAD
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = {
@@ -468,7 +441,7 @@ const styles = {
     gap: "10px",
     maxWidth: "740px",
     margin: "14px auto 0",
-    paddingLeft: "208px",   // seta(48px) + capa(150px) + gap(10px)
+    paddingLeft: "208px",
   },
   dot: {
     width: "36px",
@@ -529,7 +502,13 @@ const styles = {
     gap: "10px",
     cursor: "pointer",
     flexShrink: 0,
-    transition: "box-shadow 0.2s",
+    boxShadow: "0 2px 8px rgba(48, 28, 84, 0.05)", // Sombra
+    transition: "all 0.25s ease-in-out", // Efeito de transição ao passar o mouse
+  },
+  smallCardHover: {
+    transform: "translateY(-5px)", // Levanta o card
+    boxShadow: "0 8px 20px rgba(121, 102, 204, 0.18)", // Sombra mais intensa
+    borderColor: "#7966CC",
   },
   smallCover: {
     width: "64px",
@@ -541,6 +520,10 @@ const styles = {
     flexDirection: "column",
     justifyContent: "center",
     gap: "5px",
+  },
+  smallCardHover: {
+    transform: "translateY(-4px)",
+    boxShadow: "0 6px 16px rgba(121, 102, 204, 0.15)",
   },
   smallTitle: {
     fontSize: "11px",
@@ -565,6 +548,3 @@ const styles = {
 };
 
 export default Home;
-=======
-export default Home;
->>>>>>> e795a4208479e6cd064e1b3e08311f1c1dd2a2f4
