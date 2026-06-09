@@ -38,36 +38,87 @@ function Header({ isLoggedIn = false, user = null, showBack = false }) {
         <div style={styles.userArea} ref={menuRef}>
 
           {/* Ícone de perfil */}
-          <button style={styles.iconBtn} title="Meu perfil" onClick={() => navigate("/perfil")}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D6C083" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
+          <button
+            style={styles.iconBtn}
+            title="Meu perfil"
+            onClick={() => navigate("/perfil")}
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#D6C083"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
             </svg>
           </button>
 
           {/* Ícone de menu */}
-          <button style={styles.iconBtn} title="Menu" onClick={() => setMenuOpen(!menuOpen)}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D6C083" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="6" x2="21" y2="6"/>
-              <line x1="3" y1="12" x2="21" y2="12"/>
-              <line x1="3" y1="18" x2="21" y2="18"/>
+          <button
+            style={styles.iconBtn}
+            title="Menu"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#D6C083"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
 
           {/* Dropdown */}
           {menuOpen && (
             <div style={styles.dropdown}>
-              <button style={styles.dropdownItem} onClick={() => { navigate("/home"); setMenuOpen(false); }}>
+              <button
+                style={styles.dropdownItem}
+                onClick={() => {
+                  navigate("/home");
+                  setMenuOpen(false);
+                }}
+              >
                 Início
               </button>
-              <button style={styles.dropdownItem} onClick={() => { navigate("/discover"); setMenuOpen(false); }}>
+
+              <button
+                style={styles.dropdownItem}
+                onClick={() => {
+                  navigate("/discover");
+                  setMenuOpen(false);
+                }}
+              >
                 Explorar
               </button>
-              <button style={styles.dropdownItem} onClick={() => { navigate("/shelf"); setMenuOpen(false); }}>
-                Minha Estante
+
+              <button
+                style={styles.dropdownItem}
+                onClick={() => {
+                  navigate("/biblioteca");
+                  setMenuOpen(false);
+                }}
+              >
+                Minha Biblioteca
               </button>
+
               <div style={styles.divider} />
-              <button style={{ ...styles.dropdownItem, color: "#ff6b6b" }} onClick={() => navigate("/")}>
+
+              <button
+                style={{ ...styles.dropdownItem, color: "#ff6b6b" }}
+                onClick={() => navigate("/")}
+              >
                 Sair
               </button>
             </div>
@@ -91,6 +142,7 @@ const styles = {
     top: 0,
     zIndex: 100,
   },
+
   backBtn: {
     position: "absolute",
     left: "24px",
@@ -100,12 +152,17 @@ const styles = {
     fontSize: "22px",
     cursor: "pointer",
   },
+
   logo: {
     display: "flex",
     alignItems: "center",
     gap: "10px",
   },
-  logoIcon: { fontSize: "24px" },
+
+  logoIcon: {
+    fontSize: "24px",
+  },
+
   logoText: {
     fontFamily: "'Homemade Apple', cursive",
     fontSize: "20px",
@@ -113,6 +170,7 @@ const styles = {
     color: "#D6C083",
     letterSpacing: "-0.5px",
   },
+
   userArea: {
     position: "absolute",
     right: "24px",
@@ -120,11 +178,11 @@ const styles = {
     alignItems: "center",
     gap: "4px",
   },
+
   iconBtn: {
     width: "38px",
     height: "38px",
     borderRadius: "50%",
-    backgroundColor: "#2c2c2c",
     border: "none",
     backgroundColor: "transparent",
     cursor: "pointer",
@@ -133,6 +191,7 @@ const styles = {
     justifyContent: "center",
     transition: "background-color 0.2s",
   },
+
   dropdown: {
     position: "absolute",
     top: "48px",
@@ -147,6 +206,7 @@ const styles = {
     flexDirection: "column",
     gap: "2px",
   },
+
   dropdownItem: {
     border: "none",
     backgroundColor: "transparent",
@@ -159,6 +219,7 @@ const styles = {
     color: "#301C54",
     width: "100%",
   },
+
   divider: {
     height: "1px",
     backgroundColor: "#E8E0F0",

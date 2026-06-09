@@ -5,6 +5,7 @@ import BookPage from './pages/bookPage/BookPage'
 import Cadastro from './pages/Cadastro'
 import Perfil from './pages/Perfil'
 import Home from './pages/Home'
+import MinhaBiblioteca from "./pages/MinhaBiblioteca";
 
 function App() {
   return (
@@ -16,7 +17,9 @@ function App() {
       <Route path="/perfil" element={<Perfil />} />
       <Route path="/home" element={<Home />} />
       <Route path="/book" element={<BookPage />} />
+      <Route path="/biblioteca" element={<MinhaBiblioteca />} />
     </Routes>
+    
   )
 }
 
