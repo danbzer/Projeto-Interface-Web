@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
 import CoverImg from "../components/ui/CoverImg";
@@ -48,15 +48,32 @@ export default function Home() {
     return { genres: ["Terror"], authors: ["Stephen King"] };
   });
 
-  // Tenta chamar os hooks, se eles travarem ou retornarem undefined, contornamos com um objeto seguro
+  // Tenta chamar os hooks
   const recHook = useRecommendations(activePrefs) || { byGenre: [], byAuthor: [], loading: false };
   const searchHook = useSearch(search) || { results: [], loading: false };
 
   const loading = recHook.loading;
   const searching = searchHook.loading;
-  const searchResults = searchHook.results || [];
+  
+  // Pegamos os resultados do Hook
+  let searchResults = searchHook.results || [];
 
-  // Se o hook não trouxer nada da API, usamos a nossa lista local para popular a tela
+  // LÓGICA DE CORREÇÃO AQUI: Se a API não achou nada, fazemos a busca nas listas locais
+  if (!searching && searchResults.length === 0 && search.length > 1) {
+    const termo = search.toLowerCase();
+    const todosOsLivrosLocais = [...BACKUP_BOOKS_AUTHOR, ...BACKUP_BOOKS_GENRE, ...DEFAULT_FEATURED];
+    
+    searchResults = todosOsLivrosLocais.filter((livro) => 
+      livro.title.toLowerCase().includes(termo) ||
+      livro.author.toLowerCase().includes(termo) ||
+      (livro.tags && livro.tags.some(tag => tag.toLowerCase().includes(termo)))
+    );
+
+    // Remove livros duplicados caso existam nas duas listas
+    searchResults = Array.from(new Map(searchResults.map(b => [b.id, b])).values());
+  }
+
+  // Se o hook não trouxer nada da API para as prateleiras, usamos a nossa lista local
   const booksByAuthor = recHook.byAuthor && recHook.byAuthor.length > 0 ? recHook.byAuthor : BACKUP_BOOKS_AUTHOR;
   const booksByGenre = recHook.byGenre && recHook.byGenre.length > 0 ? recHook.byGenre : BACKUP_BOOKS_GENRE;
 
