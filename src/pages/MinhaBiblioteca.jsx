@@ -23,6 +23,11 @@ export default function Biblioteca() {
       <Header showBack />
 
       <main style={s.main}>
+        {/* Botão Voltar */}
+        <button onClick={() => navigate(-1)} style={s.backBtn}>
+          ← Voltar
+        </button>
+
         {/* Título da Tela */}
         <div style={s.titleContainer}>
           <h2 style={s.pageTitle}>Minha Biblioteca</h2>
@@ -119,6 +124,7 @@ function getStatusColor(status) {
 const s = {
   page: { minHeight: "100vh", backgroundColor: "#FAFAFA", fontFamily: "system-ui, sans-serif", color: "#1A202C", display: "flex", flexDirection: "column" },
   main: { maxWidth: "1050px", margin: "0 auto", padding: "32px 24px 80px", width: "100%", boxSizing: "border-box", flex: 1, display: "flex", flexDirection: "column" },
+  backBtn: { background: "none", border: "none", color: LARANJA, fontSize: "14px", fontWeight: "bold", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", padding: 0, marginBottom: "20px", width: "fit-content" },
   titleContainer: { marginBottom: "24px" },
   pageTitle: { fontSize: "26px", fontWeight: "bold", color: "#1A202C", margin: 0 },
   pageSubtitle: { fontSize: "14px", color: "#718096", margin: "4px 0 0 0" },

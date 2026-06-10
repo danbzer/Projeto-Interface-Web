@@ -44,6 +44,11 @@ export default function Perfil() {
       <Header showBack />
       <main style={s.main}>
 
+        {/* Botão Voltar */}
+        <button onClick={() => navigate(-1)} style={s.backBtn}>
+          ← Voltar
+        </button>
+
         {/* Header do perfil */}
         <div style={s.profileHeader}>
           <div style={s.photoArea}>
@@ -192,6 +197,7 @@ export default function Perfil() {
 const s = {
   page: { minHeight: "100vh", backgroundColor: "#FAFAFA", fontFamily: "system-ui, sans-serif", color: "#1A202C", display: "flex", flexDirection: "column" },
   main: { maxWidth: "800px", margin: "0 auto", padding: "32px 24px 60px", flex: 1, width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "24px" },
+  backBtn: { background: "none", border: "none", color: LARANJA, fontSize: "14px", fontWeight: "bold", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", padding: 0, width: "fit-content" },
   profileHeader: { display: "flex", gap: 24, alignItems: "center", backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: 20, padding: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" },
   photoArea: { position: "relative", flexShrink: 0 },
   photoImg: { width: 90, height: 90, borderRadius: "50%", objectFit: "cover", border: `2px solid ${LARANJA}` },

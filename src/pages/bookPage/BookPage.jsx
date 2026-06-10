@@ -49,7 +49,17 @@ export default function BookPage() {
     <div style={{ minHeight: "100vh", backgroundColor: "#FAFAFA", fontFamily: "system-ui, sans-serif", color: "#1A202C", display: "flex", flexDirection: "column" }}>
       <Header showBack />
 
-      <main style={{ width: "100%", maxWidth: "1050px", margin: "0 auto", padding: "32px 24px", boxSizing: "border-box", display: "flex", gap: "40px", flex: 1 }}>
+      {/* Container do Botão Voltar */}
+      <div style={{ width: "100%", maxWidth: "1050px", margin: "0 auto", padding: "24px 24px 0", boxSizing: "border-box" }}>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ background: "none", border: "none", color: LARANJA, fontSize: "14px", fontWeight: "bold", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", padding: 0 }}
+        >
+          ← Voltar
+        </button>
+      </div>
+
+      <main style={{ width: "100%", maxWidth: "1050px", margin: "0 auto", padding: "24px", boxSizing: "border-box", display: "flex", gap: "40px", flex: 1 }}>
         
         {/* Coluna esquerda: capa + tags */}
         <section style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
