@@ -6,36 +6,72 @@ import CoverImg from "../components/ui/CoverImg";
 import { useSearch } from "../hooks/useBooks";
 
 const GENRES = [
-  { name: "Terror", img: "https://covers.openlibrary.org/b/isbn/9780385121675-M.jpg" },
-  { name: "Romance", img: "https://covers.openlibrary.org/b/isbn/9781501110368-M.jpg" },
-  { name: "Ficção Científica", img: "https://covers.openlibrary.org/b/isbn/9780441013593-M.jpg" },
-  { name: "Fantasia", img: "https://covers.openlibrary.org/b/isbn/9780439708180-M.jpg" },
-  { name: "Biografia", img: "https://covers.openlibrary.org/b/isbn/9781501156700-M.jpg" },
-  { name: "Suspense", img: "https://covers.openlibrary.org/b/isbn/9780593099247-M.jpg" },
-  { name: "Mangá", img: "https://covers.openlibrary.org/b/isbn/9781421521794-M.jpg" },
-  { name: "HQ", img: "https://covers.openlibrary.org/b/isbn/9780785124399-M.jpg" },
+  { name: "Terror", img: "https://images.unsplash.com/photo-1505635552518-3448ff116af3?w=200&auto=format&fit=crop&q=60" },
+  { name: "Romance", img: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=200&auto=format&fit=crop&q=60" },
+  { name: "Ficção Científica", img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=200&auto=format&fit=crop&q=60" },
+  { name: "Fantasia", img: "https://images.unsplash.com/photo-1514894780887-121968d00567?w=200&auto=format&fit=crop&q=60" },
+  { name: "Biografia", img: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=200&auto=format&fit=crop&q=60" },
+  { name: "Suspense", img: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=200&auto=format&fit=crop&q=60" },
+  { name: "Mangá", img: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=200&auto=format&fit=crop&q=60" },
+  { name: "HQ", img: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=200&auto=format&fit=crop&q=60" },
 ];
 
 const AUTHORS = [
-  { name: "Colleen Hoover", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Colleen_Hoover_%282022%29.jpg/200px-Colleen_Hoover_%282022%29.jpg" },
-  { name: "Stephen King", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Stephen_King%2C_Comicon.jpg/200px-Stephen_King%2C_Comicon.jpg" },
-  { name: "Jane Austen", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/CassandraAusten-JaneAusten%28c.1810%29_hires.jpg/200px-CassandraAusten-JaneAusten%28c.1810%29_hires.jpg" },
-  { name: "Rick Riordan", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Rick_Riordan_2011_1.jpg/200px-Rick_Riordan_2011_1.jpg" },
-  { name: "Sally Rooney", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Sally_Rooney.jpg/200px-Sally_Rooney.jpg" },
-  { name: "Clarice Lispector", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Clarice_Lispector.jpg/200px-Clarice_Lispector.jpg" },
+  { name: "Colleen Hoover", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80" },
+  { name: "Stephen King", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" },
+  { name: "Jane Austen", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" },
+  { name: "Rick Riordan", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80" },
+  { name: "Sally Rooney", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80" },
+  { name: "Clarice Lispector", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80" },
 ];
+
+const SUGGESTED_BOOKS = [
+  { id: "s1", title: "It", author: "Stephen King", cover: "https://covers.openlibrary.org/b/isbn/9781501142970-M.jpg" },
+  { id: "s2", title: "1984", author: "George Orwell", cover: "https://covers.openlibrary.org/b/isbn/9780451524935-M.jpg" },
+  { id: "s3", title: "Harry Potter", author: "J.K. Rowling", cover: "https://covers.openlibrary.org/b/isbn/9780439708180-M.jpg" },
+  { id: "s4", title: "Verity", author: "Colleen Hoover", cover: "https://covers.openlibrary.org/b/isbn/9781538724736-M.jpg" },
+  { id: "s5", title: "O Alquimista", author: "Paulo Coelho", cover: "https://covers.openlibrary.org/b/isbn/9780062315007-M.jpg" },
+  { id: "s6", title: "Duna", author: "Frank Herbert", cover: "https://covers.openlibrary.org/b/isbn/9780441013593-M.jpg" },
+];
+
+// Movi o componente para cima para garantir que o React o conheça antes de renderizar
+function SuggestedBooks({ selectedBooks = [], setSelectedBooks }) {
+  return (
+    <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+      {SUGGESTED_BOOKS.map((book) => {
+        const sel = selectedBooks ? selectedBooks.some((b) => b.id === book.id) : false;
+        return (
+          <div 
+            key={book.id} 
+            onClick={() => setSelectedBooks((prev) => sel ? prev.filter((b) => b.id !== book.id) : [...prev, book])}
+            style={{ position: "relative", cursor: "pointer", border: sel ? "3px solid #E06237" : "3px solid transparent", borderRadius: 10, overflow: "hidden", height: 96, transition: "0.2s", transform: sel ? "scale(1.05)" : "none" }}
+          >
+            <CoverImg src={book.cover} style={{ width: 66, height: 96 }} />
+            {sel && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(224,98,55,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: "#fff", fontWeight: "bold" }}>✓</div>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Personalizar() {
   const navigate = useNavigate();
-  const { updatePreferences } = useAuth();
+  
+  // Tratativa preventiva para caso o useAuth retorne undefined durante os testes
+  const auth = useAuth();
+  const updatePreferences = auth ? auth.updatePreferences : null;
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [selectedBooks, setSelectedBooks] = useState([]);
-  const { results: searchResults, loading: searching } = useSearch(searchQuery);
+  
+  const searchHook = useSearch(searchQuery);
+  const searchResults = searchHook ? searchHook.results || [] : [];
 
   const MIN_SELECTIONS = 5;
-  const total = selectedGenres.length + selectedAuthors.length + selectedBooks.length;
+  const total = (selectedGenres?.length || 0) + (selectedAuthors?.length || 0) + (selectedBooks?.length || 0);
 
   const toggle = (list, setList, item) => {
     setList((prev) =>
@@ -45,7 +81,9 @@ export default function Personalizar() {
 
   const handleContinue = () => {
     if (total < MIN_SELECTIONS) return;
-    updatePreferences({ genres: selectedGenres, authors: selectedAuthors, books: selectedBooks });
+    if (updatePreferences) {
+      updatePreferences({ genres: selectedGenres, authors: selectedAuthors, books: selectedBooks });
+    }
     navigate("/home");
   };
 
@@ -56,18 +94,26 @@ export default function Personalizar() {
       <Header showBack />
       <main style={s.main}>
         <div style={s.header}>
-          <p style={s.tagline}>Você já está cadastrado.</p>
+          <p style={s.tagline}>Você já está cadastrado!</p>
           <h2 style={s.title}>Vamos começar definindo suas preferências.</h2>
-          <p style={s.subtitle}>Escolha pelo menos {MIN_SELECTIONS} opções entre Livros, Gêneros, Autores...</p>
-          <p style={s.counter}>{total} / {MIN_SELECTIONS} selecionados</p>
+          <p style={s.subtitle}>Escolha pelo menos {MIN_SELECTIONS} opções entre Livros, Gêneros ou Autores...</p>
+          <div style={s.counterWrapper}>
+            <span style={{ 
+              ...s.counter, 
+              color: total >= MIN_SELECTIONS ? "#34A853" : "#E06237",
+              backgroundColor: total >= MIN_SELECTIONS ? "#E6F4EA" : "#FCE8E6"
+            }}>
+              {total} de {MIN_SELECTIONS} selecionados {total >= MIN_SELECTIONS && "🎉"}
+            </span>
+          </div>
         </div>
 
         {/* Busca */}
         <div style={s.searchBox}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7E99" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A0AEC0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          <input style={s.searchInput} type="text" placeholder="Pesquise aqui..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          <input style={s.searchInput} type="text" placeholder="Pesquise por livros específicos..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         </div>
 
         {/* Resultados da busca */}
@@ -80,8 +126,8 @@ export default function Personalizar() {
                 return (
                   <div key={book.id} onClick={() => {
                     setSelectedBooks((prev) => sel ? prev.filter((b) => b.id !== book.id) : [...prev, book]);
-                  }} style={{ ...s.bookItem, outline: sel ? "3px solid #7966CC" : "none" }}>
-                    <CoverImg src={book.cover} style={{ width: 60, height: 88, borderRadius: 8 }} />
+                  }} style={{ ...s.bookItem, border: sel ? "2px solid #E06237" : "2px solid transparent", transform: sel ? "scale(1.03)" : "none" }}>
+                    <CoverImg src={book.cover} style={{ width: 64, height: 92, borderRadius: 8 }} />
                     <p style={s.bookLabel}>{book.title}</p>
                   </div>
                 );
@@ -90,25 +136,28 @@ export default function Personalizar() {
           </div>
         )}
 
-        {/* Sugestões de livros baseadas no design */}
+        {/* Sugestões de livros */}
         {!searchQuery && (
           <div style={s.section}>
-            <h3 style={s.sectionTitle}>Sugestões</h3>
-            <p style={{ ...s.sectionTitle, fontSize: "12px", color: "#555", marginBottom: "10px" }}>Livros</p>
+            <h3 style={s.sectionTitle}>Sugestões de Livros</h3>
             <SuggestedBooks selectedBooks={selectedBooks} setSelectedBooks={setSelectedBooks} />
           </div>
         )}
 
         {/* Gêneros */}
         <div style={s.section}>
-          <h3 style={s.sectionTitle}>Gêneros</h3>
+          <h3 style={s.sectionTitle}>Seus Gêneros Favoritos</h3>
           <div style={s.genreGrid}>
             {GENRES.map((g) => {
               const sel = isSelected(selectedGenres, g.name);
               return (
-                <div key={g.name} onClick={() => toggle(selectedGenres, setSelectedGenres, g.name)} style={{ ...s.genreItem, outline: sel ? "3px solid #7966CC" : "none" }}>
-                  <CoverImg src={g.img} style={{ width: "100%", height: 80, borderRadius: 10 }} />
-                  <p style={s.genreLabel}>{g.name}</p>
+                <div key={g.name} onClick={() => toggle(selectedGenres, setSelectedGenres, g.name)} 
+                     style={{ ...s.genreItem, border: sel ? "2px solid #E06237" : "2px solid #E2E8F0", transform: sel ? "scale(1.03)" : "none", boxShadow: sel ? "0 8px 16px rgba(224,98,55,0.15)" : "none" }}>
+                  <div style={s.genreImgWrapper}>
+                    <img src={g.img} alt={g.name} style={s.genreImg} />
+                    <div style={s.genreOverlay}></div>
+                    <p style={s.genreLabel}>{g.name}</p>
+                  </div>
                   {sel && <div style={s.checkBadge}>✓</div>}
                 </div>
               );
@@ -118,15 +167,18 @@ export default function Personalizar() {
 
         {/* Escritores */}
         <div style={s.section}>
-          <h3 style={s.sectionTitle}>Escritores</h3>
+          <h3 style={s.sectionTitle}>Autores que você acompanha</h3>
           <div style={s.authorGrid}>
             {AUTHORS.map((a) => {
               const sel = isSelected(selectedAuthors, a.name);
               return (
-                <div key={a.name} onClick={() => toggle(selectedAuthors, setSelectedAuthors, a.name)} style={{ ...s.authorItem, outline: sel ? "3px solid #7966CC" : "none" }}>
-                  <img src={a.img} alt={a.name} style={{ width: 70, height: 70, borderRadius: "50%", objectFit: "cover" }} onError={(e) => e.target.src = "https://via.placeholder.com/70"} />
-                  <p style={s.authorLabel}>{a.name}</p>
-                  {sel && <div style={s.checkBadge}>✓</div>}
+                <div key={a.name} onClick={() => toggle(selectedAuthors, setSelectedAuthors, a.name)} 
+                     style={{ ...s.authorItem, transform: sel ? "scale(1.05)" : "none" }}>
+                  <div style={{ ...s.authorImgContainer, border: sel ? "3px solid #E06237" : "3px solid #E2E8F0" }}>
+                    <img src={a.img} alt={a.name} style={s.authorImg} />
+                  </div>
+                  <p style={{ ...s.authorLabel, color: sel ? "#E06237" : "#2D3748", fontWeight: sel ? "700" : "600" }}>{a.name}</p>
+                  {sel && <div style={s.checkBadgeAuthor}>✓</div>}
                 </div>
               );
             })}
@@ -135,11 +187,20 @@ export default function Personalizar() {
 
         {/* Botões */}
         <div style={s.actions}>
-          <button style={{ ...s.btn, backgroundColor: total >= MIN_SELECTIONS ? "#301C54" : "#999", cursor: total >= MIN_SELECTIONS ? "pointer" : "not-allowed" }} onClick={handleContinue} disabled={total < MIN_SELECTIONS}>
-            Continuar ({total}/{MIN_SELECTIONS})
+          <button 
+            style={{ 
+              ...s.btn, 
+              backgroundColor: total >= MIN_SELECTIONS ? "#E06237" : "#CBD5E0", 
+              cursor: total >= MIN_SELECTIONS ? "pointer" : "not-allowed",
+              boxShadow: total >= MIN_SELECTIONS ? "0 4px 14px rgba(224, 98, 55, 0.3)" : "none"
+            }} 
+            onClick={handleContinue} 
+            disabled={total < MIN_SELECTIONS}
+          >
+            Continuar
           </button>
-          <button style={{ ...s.btn, backgroundColor: "transparent", color: "#555", border: "1px solid #ccc" }} onClick={() => navigate("/home")}>
-            Pular
+          <button style={{ ...s.btn, backgroundColor: "transparent", color: "#718096", border: "1px solid #E2E8F0", cursor: "pointer" }} onClick={() => navigate("/home")}>
+            Pular esta etapa
           </button>
         </div>
       </main>
@@ -147,55 +208,35 @@ export default function Personalizar() {
   );
 }
 
-// Livros sugeridos hardcoded para a tela de preferências
-const SUGGESTED_BOOKS = [
-  { id: "s1", title: "It", author: "Stephen King", cover: "https://covers.openlibrary.org/b/isbn/9781501142970-M.jpg" },
-  { id: "s2", title: "1984", author: "George Orwell", cover: "https://covers.openlibrary.org/b/isbn/9780451524935-M.jpg" },
-  { id: "s3", title: "Harry Potter", author: "J.K. Rowling", cover: "https://covers.openlibrary.org/b/isbn/9780439708180-M.jpg" },
-  { id: "s4", title: "Verity", author: "Colleen Hoover", cover: "https://covers.openlibrary.org/b/isbn/9781538724736-M.jpg" },
-  { id: "s5", title: "O Alquimista", author: "Paulo Coelho", cover: "https://covers.openlibrary.org/b/isbn/9780062315007-M.jpg" },
-  { id: "s6", title: "Duna", author: "Frank Herbert", cover: "https://covers.openlibrary.org/b/isbn/9780441013593-M.jpg" },
-];
-
-function SuggestedBooks({ selectedBooks, setSelectedBooks }) {
-  return (
-    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-      {SUGGESTED_BOOKS.map((book) => {
-        const sel = selectedBooks.some((b) => b.id === book.id);
-        return (
-          <div key={book.id} onClick={() => setSelectedBooks((prev) => sel ? prev.filter((b) => b.id !== book.id) : [...prev, book])}
-            style={{ position: "relative", cursor: "pointer", outline: sel ? "3px solid #7966CC" : "none", borderRadius: 10, overflow: "hidden" }}>
-            <CoverImg src={book.cover} style={{ width: 60, height: 88 }} />
-            {sel && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(121,102,204,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: "#fff" }}>✓</div>}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 const s = {
-  page: { minHeight: "100vh", backgroundColor: "#F8F6FF", fontFamily: "'PT Mono', monospace", color: "#301C54" },
-  main: { maxWidth: "900px", margin: "0 auto", padding: "32px 24px 80px", display: "flex", flexDirection: "column", gap: "28px" },
-  header: { display: "flex", flexDirection: "column", gap: "6px" },
-  tagline: { fontSize: "14px", color: "#7966CC", fontWeight: "600" },
-  title: { fontSize: "22px", color: "#1D1D1D", fontWeight: "600" },
-  subtitle: { fontSize: "13px", color: "#555" },
-  counter: { fontSize: "13px", color: "#7966CC", fontWeight: "600" },
-  searchBox: { display: "flex", alignItems: "center", gap: "10px", height: "40px", backgroundColor: "#E5E0EA", borderRadius: "30px", padding: "0 16px", maxWidth: "480px" },
-  searchInput: { flex: 1, border: "none", outline: "none", backgroundColor: "transparent", fontFamily: "'PT Mono', monospace", fontSize: "13px", color: "#301C54" },
+  page: { minHeight: "100vh", backgroundColor: "#FAFAFA", fontFamily: "system-ui, -apple-system, sans-serif", color: "#1A202C" },
+  main: { maxWidth: "840px", margin: "0 auto", padding: "40px 24px 100px", display: "flex", flexDirection: "column", gap: "36px" },
+  header: { display: "flex", flexDirection: "column", gap: "8px" },
+  tagline: { fontSize: "14px", color: "#E06237", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px" },
+  title: { fontSize: "26px", color: "#1A202C", fontWeight: "800", margin: 0, letterSpacing: "-0.5px" },
+  subtitle: { fontSize: "15px", color: "#4A5568", margin: 0 },
+  counterWrapper: { marginTop: "6px" },
+  counter: { fontSize: "13px", fontWeight: "700", padding: "6px 14px", borderRadius: "20px", display: "inline-block" },
+  searchBox: { display: "flex", alignItems: "center", gap: "12px", height: "48px", backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "30px", padding: "0 20px", maxWidth: "480px", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" },
+  searchInput: { flex: 1, border: "none", outline: "none", backgroundColor: "transparent", fontFamily: "inherit", fontSize: "14px", color: "#2D3748" },
   section: {},
-  sectionTitle: { fontSize: "14px", fontWeight: "600", color: "#1D1D1D", marginBottom: "14px" },
-  bookGrid: { display: "flex", gap: "12px", flexWrap: "wrap" },
-  bookItem: { cursor: "pointer", borderRadius: 10, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 },
-  bookLabel: { fontSize: "10px", color: "#301C54", textAlign: "center", maxWidth: 60, lineHeight: 1.3 },
-  genreGrid: { display: "flex", gap: "14px", flexWrap: "wrap" },
-  genreItem: { width: 100, cursor: "pointer", borderRadius: 12, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column", alignItems: "center" },
-  genreLabel: { fontSize: "11px", color: "#301C54", textAlign: "center", marginTop: 6 },
-  authorGrid: { display: "flex", gap: "20px", flexWrap: "wrap" },
-  authorItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer", position: "relative", borderRadius: "50%", padding: 2 },
-  authorLabel: { fontSize: "11px", color: "#301C54", textAlign: "center", maxWidth: 80 },
-  checkBadge: { position: "absolute", top: 2, right: 2, width: 20, height: 20, borderRadius: "50%", backgroundColor: "#7966CC", color: "#fff", fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center" },
-  actions: { display: "flex", flexDirection: "column", gap: "12px", maxWidth: 360, margin: "0 auto", width: "100%" },
-  btn: { width: "100%", padding: "14px", borderRadius: "30px", border: "none", fontFamily: "'PT Mono', monospace", fontSize: "15px", color: "#fff", transition: "opacity 0.2s" },
+  sectionTitle: { fontSize: "18px", fontWeight: "700", color: "#1A202C", marginBottom: "16px", letterSpacing: "-0.3px" },
+  bookGrid: { display: "flex", gap: "16px", flexWrap: "wrap" },
+  bookItem: { cursor: "pointer", borderRadius: 10, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, transition: "0.2s", padding: 2 },
+  bookLabel: { fontSize: "11px", color: "#2D3748", textAlign: "center", maxWidth: 64, lineHeight: 1.3, fontWeight: "500" },
+  genreGrid: { display: "flex", gap: "16px", flexWrap: "wrap" },
+  genreItem: { width: "120px", cursor: "pointer", borderRadius: "14px", overflow: "hidden", position: "relative", transition: "0.2s", background: "#fff", boxSizing: "border-box" },
+  genreImgWrapper: { width: "100%", height: "76px", position: "relative" },
+  genreImg: { width: "100%", height: "100%", objectFit: "cover" },
+  genreOverlay: { position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.65))" },
+  genreLabel: { position: "absolute", bottom: "8px", left: "0", right: "0", fontSize: "13px", color: "#FFFFFF", textAlign: "center", margin: 0, fontWeight: "700", padding: "0 4px", textShadow: "0 1px 2px rgba(0,0,0,0.5)" },
+  authorGrid: { display: "flex", gap: "24px", flexWrap: "wrap" },
+  authorItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: 10, cursor: "pointer", position: "relative", transition: "0.2s" },
+  authorImgContainer: { width: "76px", height: "76px", borderRadius: "50%", overflow: "hidden", padding: "2px", transition: "0.2s", boxSizing: "border-box" },
+  authorImg: { width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" },
+  authorLabel: { fontSize: "12px", textAlign: "center", maxWidth: "86px", margin: 0, transition: "0.2s" },
+  checkBadge: { position: "absolute", top: "6px", right: "6px", width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "#E06237", color: "#fff", fontSize: "11px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" },
+  checkBadgeAuthor: { position: "absolute", top: "2px", right: "4px", width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "#E06237", color: "#fff", fontSize: "11px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" },
+  actions: { display: "flex", flexDirection: "column", gap: "12px", maxWidth: "360px", margin: "50px auto 0", width: "100%" },
+  btn: { width: "100%", padding: "14px", borderRadius: "30px", border: "none", fontSize: "16px", fontWeight: "700", transition: "0.2s", textAlign: "center", color: "#fff" },
 };

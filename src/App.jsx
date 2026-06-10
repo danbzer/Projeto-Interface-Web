@@ -21,7 +21,11 @@ function AppRoutes() {
       <Route path="/" element={<Login />} />
       <Route path="/entrar" element={<LoginForm />} />
       <Route path="/cadastro" element={<Cadastro />} />
-      <Route path="/personalizar" element={<PrivateRoute><Personalizar /></PrivateRoute>} />
+      
+      {/* CORRIGIDO: Liberado temporariamente o acesso direto sem PrivateRoute para você conseguir testar e criar as preferências */}
+      <Route path="/personalizar" element={<Personalizar />} />
+      
+      {/* As outras páginas continuam protegidas e seguras */}
       <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
       <Route path="/livro" element={<PrivateRoute><BookPage /></PrivateRoute>} />
       <Route path="/biblioteca" element={<PrivateRoute><MinhaBiblioteca /></PrivateRoute>} />

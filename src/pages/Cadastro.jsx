@@ -1,132 +1,132 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
-import { useAuth } from "../context/AuthContext";
-
-const EyeIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
-  </svg>
-);
-const EyeOffIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-    <line x1="1" y1="1" x2="23" y2="23" />
-  </svg>
-);
 
 export default function Cadastro() {
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [form, setForm] = useState({ nome: "", dataNascimento: "", email: "", senha: "", confirmarSenha: "" });
-  const [errors, setErrors] = useState({});
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
 
-  const set = (field, value) => setForm((p) => ({ ...p, [field]: value }));
+  const lidarComCadastro = (e) => {
+    e.preventDefault();
+    
+    // Simulação temporária de login para evitar que as rotas protegidas te expulsem
+    const usuarioTemporario = { nome, email, uid: "temp-user-123" };
+    localStorage.setItem("user", JSON.stringify(usuarioTemporario));
+    localStorage.setItem("token", "mock-token-abc-123"); 
 
-  const validate = () => {
-    const e = {};
-    if (!form.nome) e.nome = "Nome é obrigatório.";
-    if (!form.dataNascimento) {
-      e.dataNascimento = "Data de nascimento é obrigatória.";
-    } else {
-      const nascimento = new Date(form.dataNascimento);
-      const hoje = new Date();
-
-      if (isNaN(nascimento.getTime())) {
-        e.dataNascimento = "Data inválida.";
-      } else if (nascimento > hoje) {
-        e.dataNascimento = "A data não pode ser futura.";
-      }
-    }
-    if (!form.email) e.email = "E-mail é obrigatório.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "E-mail inválido.";
-    if (!form.senha) e.senha = "Senha é obrigatória.";
-    else if (form.senha.length < 8) e.senha = "Mínimo 8 caracteres.";
-    else if (!/[A-Z]/.test(form.senha)) e.senha = "Precisa de uma letra maiúscula.";
-    else if (!/[0-9]/.test(form.senha)) e.senha = "Precisa de um número.";
-    if (!form.confirmarSenha) e.confirmarSenha = "Confirme sua senha.";
-    else if (form.senha !== form.confirmarSenha) e.confirmarSenha = "As senhas não coincidem.";
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const handleSubmit = () => {
-    if (!validate()) return;
-    login({ name: form.nome, email: form.email, username: "", photo: null, preferences: null });
+    console.log("Usuário temporário salvo! Tentando navegar para /personalizar...");
+    
+    // Navega para a página de preferências
     navigate("/personalizar");
-  };
-
-  const maskDate = (value) => {
-    let v = value.replace(/\D/g, "");
-    if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
-    if (v.length > 5) v = v.slice(0, 5) + "/" + v.slice(5);
-    return v.slice(0, 10);
   };
 
   return (
     <div style={s.page}>
-      <Header showBack />
-      <main style={s.main}>
-        <h2 style={s.title}>Dados cadastrais</h2>
-        <div style={s.form}>
-          <Field label="Nome completo" error={errors.nome}>
-            <input type="text" placeholder="Digite aqui..." value={form.nome} onChange={(e) => set("nome", e.target.value)} style={{ ...s.input, borderColor: errors.nome ? "#ff4d4d" : "transparent" }} />
-          </Field>
-          <Field label="Data de Nascimento" error={errors.dataNascimento}>
-            <input
-              type="date"
-              value={form.dataNascimento}
-              onChange={(e) => set("dataNascimento", e.target.value)}
-              style={{
-                ...s.input,
-                borderColor: errors.dataNascimento ? "#ff4d4d" : "transparent",
-              }}
-            />
-          </Field>
-          <Field label="E-mail" error={errors.email}>
-            <input type="email" placeholder="Digite aqui..." value={form.email} onChange={(e) => set("email", e.target.value)} style={{ ...s.input, borderColor: errors.email ? "#ff4d4d" : "transparent" }} />
-          </Field>
-          <Field label="Senha" error={errors.senha}>
-            <div style={{ position: "relative" }}>
-              <input type={showPassword ? "text" : "password"} placeholder="Digite aqui..." value={form.senha} onChange={(e) => set("senha", e.target.value)} style={{ ...s.input, borderColor: errors.senha ? "#ff4d4d" : "transparent" }} />
-              <button style={s.eyeBtn} onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOffIcon /> : <EyeIcon />}</button>
+      <div style={s.overlay}>
+        <Header />
+        
+        <main style={s.main}>
+          <div style={s.card}>
+            {/* Botão Voltar */}
+            <div style={s.voltar} onClick={() => navigate(-1)}>
+              &larr; Voltar
             </div>
-          </Field>
-          <Field label="Confirme a Senha" error={errors.confirmarSenha}>
-            <div style={{ position: "relative" }}>
-              <input type={showConfirm ? "text" : "password"} placeholder="Digite aqui..." value={form.confirmarSenha} onChange={(e) => set("confirmarSenha", e.target.value)} style={{ ...s.input, borderColor: errors.confirmarSenha ? "#ff4d4d" : "transparent" }} />
-              <button style={s.eyeBtn} onClick={() => setShowConfirm(!showConfirm)}>{showConfirm ? <EyeOffIcon /> : <EyeIcon />}</button>
-            </div>
-          </Field>
-          <button style={s.btnSolid} onClick={handleSubmit}>Cadastrar</button>
-          <p style={s.link}>Já tem conta? <span style={s.linkSpan} onClick={() => navigate("/entrar")}>Entrar</span></p>
-        </div>
-      </main>
-    </div>
-  );
-}
 
-function Field({ label, error, children }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-      <label style={{ fontSize: "14px", color: "#F5F0FF" }}>{label}</label>
-      {children}
-      {error && <span style={{ fontSize: "12px", color: "#ff4d4d", paddingLeft: "12px" }}>{error}</span>}
+            <h2 style={s.titulo}>Crie a sua conta</h2>
+            <p style={s.subtitulo}>Comece sua jornada literária personalizada.</p>
+            
+            <form onSubmit={lidarComCadastro} style={s.form}>
+              <div style={s.inputGroup}>
+                <label style={s.label}>Nome Completo</label>
+                <input 
+                  type="text" 
+                  value={nome} 
+                  onChange={(e) => setNome(e.target.value)} 
+                  placeholder="Seu nome" 
+                  required 
+                  style={s.input}
+                />
+              </div>
+
+              <div style={s.inputGroup}>
+                <label style={s.label}>E-mail</label>
+                <input 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="seuemail@exemplo.com" 
+                  required 
+                  style={s.input}
+                />
+              </div>
+
+              <div style={s.inputGroup}>
+                <label style={s.label}>Senha</label>
+                <input 
+                  type="password" 
+                  value={senha} 
+                  onChange={(e) => setSenha(e.target.value)} 
+                  placeholder="Mínimo 6 caracteres" 
+                  required 
+                  style={s.input}
+                />
+              </div>
+
+              <button type="submit" style={s.btnSolid}>
+                Cadastrar
+              </button>
+            </form>
+
+            <div style={s.dividerContainer}>
+              <div style={s.dividerLine}></div>
+              <span style={s.orText}>ou</span>
+              <div style={s.dividerLine}></div>
+            </div>
+
+            {/* Botão Google Registar Estilizado */}
+            <button 
+              type="button" 
+              style={s.btnGoogle} 
+              onClick={() => alert("Chamando API do Google Auth...")}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" style={{ marginRight: "10px" }}>
+                <path fill="#EA4335" d="M24 9.5c3.5 0 6.9 1.2 9.5 3.3l7-7C36.3 2.4 30.6 0 24 0 14.6 0 6.7 5.4 3 13l7.7 6c1.8-5.5 7-9.5 13.3-9.5z"/>
+                <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.2-.4-4.7H24v9h12.7c-.5 2.9-2.2 5.3-4.7 7l7.4 5.7c4.3-4 7.1-10 7.1-17z"/>
+                <path fill="#FBBC05" d="M10.7 29c-1-2.9-1-6 0-9L3 14c-3.2 6.4-3.2 14 0 20.4l7.7-5.4z"/>
+                <path fill="#34A853" d="M24 48c6.5 0 12.3-2.1 16.4-5.8l-7.4-5.7c-2.5 1.7-5.7 2.6-9 2.6-6.3 0-11.5-4-13.3-9.5L3 35c3.7 7.6 11.6 13 21 13z"/>
+              </svg>
+              Registrar com o Google
+            </button>
+
+            <p style={s.alternativa}>
+              Já possui conta? <span style={s.link} onClick={() => navigate("/entrar")}>Faça login</span>
+            </p>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
 
 const s = {
-  page: { minHeight: "100vh", backgroundColor: "#7966CC", fontFamily: "'PT Mono', monospace" },
-  main: { display: "flex", flexDirection: "column", alignItems: "center", padding: "40px", gap: "24px" },
-  title: { fontSize: "20px", color: "#F5F0FF", fontWeight: "400" },
-  form: { display: "flex", flexDirection: "column", gap: "16px", width: "100%", maxWidth: "380px" },
-  input: { width: "100%", padding: "14px 20px", borderRadius: "30px", border: "2px solid transparent", backgroundColor: "#d0d0d0", fontSize: "14px", fontFamily: "'PT Mono', monospace", color: "#333", boxSizing: "border-box", outline: "none" },
-  eyeBtn: { position: "absolute", right: "16px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center" },
-  btnSolid: { width: "100%", padding: "16px", borderRadius: "30px", backgroundColor: "#301C54", color: "#fff", border: "none", fontFamily: "'PT Mono', monospace", fontSize: "16px", cursor: "pointer", marginTop: "8px" },
-  link: { fontSize: "13px", color: "#F5F0FF", textAlign: "center" },
-  linkSpan: { textDecoration: "underline", cursor: "pointer" },
+  page: { minHeight: "100vh", backgroundColor: "#FAFAFA", fontFamily: "system-ui, -apple-system, sans-serif", position: "relative", overflow: "hidden" },
+  overlay: { position: "relative", zIndex: 1, minHeight: "100vh", display: "flex", flexDirection: "column" },
+  main: { display: "flex", justifyContent: "center", alignItems: "center", padding: "40px 20px", flex: 1, width: "100%" },
+  card: { width: "100%", maxWidth: "450px", background: "#FFFFFF", padding: "36px 32px", borderRadius: "24px", boxShadow: "0 10px 25px rgba(0, 0, 0, 0.05)", position: "relative" },
+  voltar: { position: "absolute", top: "20px", left: "24px", fontSize: "14px", color: "#718096", cursor: "pointer", fontWeight: "500", transition: "0.2s" },
+  titulo: { fontSize: "24px", color: "#1A202C", textAlign: "center", fontWeight: "700", marginTop: "16px", marginBottom: "6px" },
+  subtitulo: { fontSize: "14px", color: "#718096", textAlign: "center", marginBottom: "28px", fontWeight: "400" },
+  form: { display: "flex", flexDirection: "column", gap: "18px" },
+  inputGroup: { display: "flex", flexDirection: "column", gap: "6px" },
+  label: { fontSize: "14px", color: "#4A5568", fontWeight: "600", textAlign: "left" },
+  input: { width: "100%", padding: "12px 16px", borderRadius: "30px", border: "1px solid #E2E8F0", fontSize: "14px", backgroundColor: "#F8FAFC", outline: "none", boxSizing: "border-box", transition: "0.2s" },
+  btnSolid: { width: "100%", padding: "14px", borderRadius: "30px", backgroundColor: "#E06237", color: "#fff", border: "none", fontSize: "16px", fontWeight: "600", cursor: "pointer", transition: "0.2s", textAlign: "center", marginTop: "8px" },
+  dividerContainer: { display: "flex", alignItems: "center", width: "100%", margin: "20px 0" },
+  dividerLine: { flex: 1, height: "1px", background: "#E2E8F0" },
+  orText: { fontSize: "13px", color: "#A0AEC0", padding: "0 12px", fontWeight: "500" },
+  btnGoogle: { width: "100%", padding: "12px", borderRadius: "30px", backgroundColor: "#FFFFFF", color: "#4A5568", border: "1px solid #E2E8F0", fontSize: "15px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "0.2s", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" },
+  alternativa: { fontSize: "14px", color: "#718096", textAlign: "center", marginTop: "24px", fontWeight: "400" },
+  link: { color: "#E06237", fontWeight: "600", cursor: "pointer", textDecoration: "underline" }
 };

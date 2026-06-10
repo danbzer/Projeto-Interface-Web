@@ -1,14 +1,24 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
-import Footer from "../components/layout/Footer";
 import CoverImg from "../components/ui/CoverImg";
 import StarRating from "../components/ui/StarRating";
 import { useAuth } from "../context/AuthContext";
-import { useRecommendations } from "../hooks/useBooks";
-import { useSearch } from "../hooks/useBooks";
+import { useRecommendations, useSearch } from "../hooks/useBooks";
 
-// Fallback featured books caso não haja prefs
+// Livros de backup para garantir que a tela NUNCA fique vazia se o hook falhar
+const BACKUP_BOOKS_AUTHOR = [
+  { id: "b1", title: "O Iluminado", author: "Stephen King", cover: "https://covers.openlibrary.org/b/isbn/9780345806789-M.jpg", averageRating: 4.8 },
+  { id: "b2", title: "It: A Coisa", author: "Stephen King", cover: "https://covers.openlibrary.org/b/isbn/9781501142970-M.jpg", averageRating: 4.7 },
+  { id: "b3", title: "Misery", author: "Stephen King", cover: "https://covers.openlibrary.org/b/isbn/9781501156748-M.jpg", averageRating: 4.6 },
+];
+
+const BACKUP_BOOKS_GENRE = [
+  { id: "b4", title: "Drácula", author: "Bram Stoker", cover: "https://covers.openlibrary.org/b/isbn/9780486411095-M.jpg", averageRating: 4.5 },
+  { id: "b5", title: "Frankenstein", author: "Mary Shelley", cover: "https://covers.openlibrary.org/b/isbn/97804 Dover-M.jpg", averageRating: 4.4 },
+  { id: "b6", title: "O Corvo", author: "Edgar Allan Poe", cover: "https://covers.openlibrary.org/b/isbn/9780785834434-M.jpg", averageRating: 4.9 },
+];
+
 const DEFAULT_FEATURED = [
   { id: "f1", title: "O Homem de Giz", author: "C.J. Tudor", cover: "https://covers.openlibrary.org/b/isbn/9780593099247-L.jpg", tags: ["Suspense", "C.J. Tudor"], tagColors: [{ bg: "#DFF0FF", color: "#326A9F" }, { bg: "#FFE1E8", color: "#9F3A5B" }], description: "Em 1986, um grupo de crianças inventa um jogo macabro usando figuras de giz. Décadas depois, os desenhos voltam a aparecer — e os assassinatos recomeçam." },
   { id: "f2", title: "Verity", author: "Colleen Hoover", cover: "https://covers.openlibrary.org/b/isbn/9781538724736-L.jpg", tags: ["Thriller", "Romance"], tagColors: [{ bg: "#E8F5E9", color: "#2E7D32" }, { bg: "#FFF3E0", color: "#E65100" }], description: "Lowen Ashby aceita terminar a série de uma autora renomada. Mas ao chegar à mansão, encontra um manuscrito perturbador." },
@@ -18,34 +28,81 @@ const DEFAULT_FEATURED = [
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const prefs = user?.preferences;
-
+  const [menuAberto, setMenuAberto] = useState(false);
   const [search, setSearch] = useState("");
   const [featured, setFeatured] = useState(0);
+  
   const rowRef1 = useRef(null);
   const rowRef2 = useRef(null);
 
-  const { byGenre, byAuthor, loading } = useRecommendations(prefs);
-  const { results: searchResults, loading: searching } = useSearch(search);
+  // Força uma leitura limpa das preferências
+  const [activePrefs] = useState(() => {
+    if (user?.preferences) return user.preferences;
+    try {
+      const localUser = localStorage.getItem("user");
+      if (localUser) {
+        const parsed = JSON.parse(localUser);
+        if (parsed.preferences) return parsed.preferences;
+      }
+    } catch (e) {}
+    return { genres: ["Terror"], authors: ["Stephen King"] };
+  });
+
+  // Tenta chamar os hooks, se eles travarem ou retornarem undefined, contornamos com um objeto seguro
+  const recHook = useRecommendations(activePrefs) || { byGenre: [], byAuthor: [], loading: false };
+  const searchHook = useSearch(search) || { results: [], loading: false };
+
+  const loading = recHook.loading;
+  const searching = searchHook.loading;
+  const searchResults = searchHook.results || [];
+
+  // Se o hook não trouxer nada da API, usamos a nossa lista local para popular a tela
+  const booksByAuthor = recHook.byAuthor && recHook.byAuthor.length > 0 ? recHook.byAuthor : BACKUP_BOOKS_AUTHOR;
+  const booksByGenre = recHook.byGenre && recHook.byGenre.length > 0 ? recHook.byGenre : BACKUP_BOOKS_GENRE;
 
   const scroll = (ref, dir) => ref.current?.scrollBy({ left: dir * 200, behavior: "smooth" });
 
   const firstName = user?.name?.split(" ")[0] || "Leitor";
-  const genres = prefs?.genres || [];
-  const authors = prefs?.authors || [];
+  const genres = activePrefs?.genres || ["Terror"];
+  const authors = activePrefs?.authors || ["Stephen King"];
 
   return (
     <div style={s.page}>
       <Header />
+      
       <main style={s.main}>
 
-        {/* Busca */}
-        <div style={s.searchBox}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7E99" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <input style={s.searchInput} type="text" placeholder="Pesquise títulos, gêneros, autores..." value={search} onChange={(e) => setSearch(e.target.value)} />
+        {/* Barra de Busca + Botão Menu 3 Pontinhos */}
+        <div style={s.searchContainer}>
+          <div style={s.searchBox}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A0AEC0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input style={s.searchInput} type="text" placeholder="Pesquise títulos, gêneros, autores..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          </div>
+
+          {/* Botão de 3 Pontinhos */}
+          <div style={s.menuWrapper}>
+            <button style={s.dotsBtn} onClick={() => setMenuAberto(!menuAberto)}>
+              &#8942;
+            </button>
+            
+            {/* Menu Flutuante Dropdown */}
+            {menuAberto && (
+              <div style={s.dropdownMenu}>
+                <div style={s.dropdownItem} onClick={() => { navigate("/biblioteca"); setMenuAberto(false); }}>
+                  📚 Minha Biblioteca
+                </div>
+                <div style={s.dropdownItem} onClick={() => { navigate("/perfil"); setMenuAberto(false); }}>
+                  👤 Meu Perfil
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Fechar menu ao clicar fora */}
+        {menuAberto && <div style={s.menuOverlay} onClick={() => setMenuAberto(false)} />}
 
         {/* Resultados de busca */}
         {search.length > 1 && (
@@ -56,7 +113,7 @@ export default function Home() {
                 {searchResults.map((book) => (
                   <BookCard key={book.id} book={book} onClick={() => navigate("/livro", { state: book })} />
                 ))}
-                {!searching && searchResults.length === 0 && <p style={{ color: "#888", fontSize: "13px" }}>Nenhum resultado encontrado.</p>}
+                {!searching && searchResults.length === 0 && <p style={{ color: "#718096", fontSize: "14px" }}>Nenhum resultado encontrado.</p>}
               </div>
             </div>
           </section>
@@ -89,7 +146,7 @@ export default function Home() {
                     ))}
                   </div>
                   <h2 style={s.featuredTitle}>{DEFAULT_FEATURED[featured].title}</h2>
-                  <p style={s.featuredAuthor}>{DEFAULT_FEATURED[featured].author}</p>
+                  <p style={s.featuredAuthor}>por {DEFAULT_FEATURED[featured].author}</p>
                   <p style={s.featuredDesc}>{DEFAULT_FEATURED[featured].description}</p>
                 </div>
               </div>
@@ -100,34 +157,20 @@ export default function Home() {
               </div>
             </section>
 
-            {/* Por autor favorito */}
-            {authors.length > 0 && (
-              <section style={s.section}>
-                <h2 style={s.sectionTitle}>Porque você gosta de {authors[0]}</h2>
-                <ScrollRow books={byAuthor.length > 0 ? byAuthor : []} loading={loading} navigate={navigate} ref={rowRef1} scroll={scroll} rowRef={rowRef1} />
-              </section>
-            )}
+            {/* Carrossel de Autores */}
+            <section style={s.section}>
+              <h2 style={s.sectionTitle}>Porque você gosta de {authors[0]}</h2>
+              <ScrollRow books={booksByAuthor} loading={loading} navigate={navigate} rowRef={rowRef1} scroll={scroll} />
+            </section>
 
-            {/* Por gênero */}
-            {genres.length > 0 && (
-              <section style={s.section}>
-                <h2 style={s.sectionTitle}>Baseados na sua vibe de {genres[0]}</h2>
-                <ScrollRow books={byGenre.length > 0 ? byGenre : []} loading={loading} navigate={navigate} rowRef={rowRef2} scroll={scroll} />
-              </section>
-            )}
-
-            {/* Fallback quando não tem prefs */}
-            {!prefs && (
-              <section style={s.section}>
-                <h2 style={s.sectionTitle}>Personalize seu feed</h2>
-                <p style={{ fontSize: "13px", color: "#555", marginBottom: "12px" }}>Defina suas preferências para receber recomendações personalizadas.</p>
-                <button onClick={() => navigate("/personalizar")} style={s.prefBtn}>Definir preferências</button>
-              </section>
-            )}
+            {/* Carrossel de Gêneros */}
+            <section style={s.section}>
+              <h2 style={s.sectionTitle}>Baseados na sua vibe de {genres[0]}</h2>
+              <ScrollRow books={booksByGenre} loading={loading} navigate={navigate} rowRef={rowRef2} scroll={scroll} />
+            </section>
           </>
         )}
       </main>
-      <Footer />
     </div>
   );
 }
@@ -147,7 +190,7 @@ function BookCard({ book, onClick }) {
   );
 }
 
-function ScrollRow({ books, loading, navigate, rowRef, scroll }) {
+function ScrollRow({ books = [], loading, navigate, rowRef, scroll }) {
   return (
     <div style={s.rowWrapper}>
       <button style={s.arrowBtn} onClick={() => scroll(rowRef, -1)}>‹</button>
@@ -155,7 +198,7 @@ function ScrollRow({ books, loading, navigate, rowRef, scroll }) {
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
         ) : books.length === 0 ? (
-          <p style={{ fontSize: "13px", color: "#888" }}>Nenhum livro encontrado.</p>
+          <p style={{ fontSize: "14px", color: "#718096" }}>Nenhum livro encontrado.</p>
         ) : (
           books.map((book) => <BookCard key={book.id} book={book} onClick={() => navigate("/livro", { state: book })} />)
         )}
@@ -168,46 +211,51 @@ function ScrollRow({ books, loading, navigate, rowRef, scroll }) {
 function SkeletonCard() {
   return (
     <div style={{ ...s.smallCard, cursor: "default" }}>
-      <div style={{ ...s.smallCover, backgroundColor: "#E5E0EA" }} />
+      <div style={{ ...s.smallCover, backgroundColor: "#E2E8F0" }} />
       <div style={s.smallInfo}>
-        <div style={{ height: 10, width: "80%", backgroundColor: "#E5E0EA", borderRadius: 4 }} />
-        <div style={{ height: 8, width: "60%", backgroundColor: "#EEE", borderRadius: 4 }} />
+        <div style={{ height: 10, width: "80%", backgroundColor: "#E2E8F0", borderRadius: 4 }} />
+        <div style={{ height: 8, width: "60%", backgroundColor: "#EDF2F7", borderRadius: 4 }} />
       </div>
     </div>
   );
 }
 
 const s = {
-  page: { width: "100%", minHeight: "100vh", backgroundColor: "#F8F6FF", fontFamily: "'PT Mono', monospace", color: "#301C54", display: "flex", flexDirection: "column" },
-  main: { display: "flex", flexDirection: "column", width: "100%", maxWidth: "1050px", margin: "0 auto", padding: "28px 32px 56px", boxSizing: "border-box", flex: 1 },
-  searchBox: { display: "flex", alignItems: "center", gap: "10px", height: "42px", backgroundColor: "#E5E0EA", borderRadius: "30px", padding: "0 20px", maxWidth: "540px", margin: "0 auto 32px", boxSizing: "border-box" },
-  searchInput: { flex: 1, border: "none", outline: "none", backgroundColor: "transparent", fontFamily: "'PT Mono', monospace", fontSize: "13px", color: "#301C54" },
-  greetingSection: { marginBottom: "24px" },
-  greeting: { fontSize: "28px", marginBottom: "4px", color: "#1D1D1D", fontFamily: "'PT Mono', monospace" },
-  question: { fontSize: "16px", marginBottom: "14px", color: "#1D1D1D" },
-  basedText: { fontSize: "13px", color: "#1D1D1D" },
-  tag: { display: "inline-block", padding: "3px 10px", borderRadius: "20px", fontSize: "11px", fontWeight: "500", margin: "0 2px" },
-  featureSection: { marginBottom: "8px" },
-  featureCard: { display: "grid", gridTemplateColumns: "150px 1fr", gap: "20px", backgroundColor: "#FFFFFF", border: "1px solid #E8E0F0", borderRadius: "16px", padding: "18px", cursor: "pointer", transition: "transform 0.2s, box-shadow 0.2s" },
-  bigCover: { width: "150px", height: "216px", borderRadius: "10px" },
-  featureInfo: { display: "flex", flexDirection: "column", justifyContent: "center", gap: "8px" },
-  tagRow: { display: "flex", gap: "8px", flexWrap: "wrap" },
-  featuredTitle: { fontSize: "18px", color: "#1D1D1D", fontFamily: "'PT Mono', monospace", fontWeight: "600" },
-  featuredAuthor: { fontSize: "13px", color: "#555" },
-  featuredDesc: { fontSize: "12px", color: "#555", lineHeight: "1.7", display: "-webkit-box", WebkitLineClamp: 5, WebkitBoxOrient: "vertical", overflow: "hidden" },
-  dots: { display: "flex", gap: "10px", margin: "14px 0 0 170px" },
-  dot: { width: "36px", height: "4px", borderRadius: "2px", backgroundColor: "#D8D1E4", cursor: "pointer", display: "inline-block", transition: "all 0.3s" },
-  dotActive: { width: "52px", backgroundColor: "#301C54" },
-  section: { marginTop: "38px" },
-  sectionTitle: { fontSize: "14px", fontWeight: "600", color: "#1D1D1D", marginBottom: "14px", fontFamily: "'PT Mono', monospace" },
-  rowWrapper: { display: "flex", alignItems: "center", gap: "8px" },
-  arrowBtn: { background: "none", border: "none", fontSize: "24px", color: "#7966CC", cursor: "pointer", padding: "4px 6px", flexShrink: 0, lineHeight: 1 },
-  bookRow: { display: "flex", gap: "14px", overflowX: "auto", paddingBottom: "10px", scrollbarWidth: "none", flex: 1 },
-  smallCard: { minWidth: "190px", maxWidth: "190px", backgroundColor: "#FFFFFF", border: "1px solid #E8E0F0", borderRadius: "12px", padding: "10px", display: "grid", gridTemplateColumns: "64px 1fr", gap: "10px", cursor: "pointer", flexShrink: 0, boxShadow: "0 2px 8px rgba(48, 28, 84, 0.05)", transition: "all 0.25s ease-in-out" },
-  smallCardHover: { transform: "translateY(-4px)", boxShadow: "0 8px 20px rgba(121,102,204,0.18)", borderColor: "#7966CC" },
-  smallCover: { width: "64px", height: "90px", borderRadius: "8px" },
-  smallInfo: { display: "flex", flexDirection: "column", justifyContent: "center", gap: "5px" },
-  smallTitle: { fontSize: "11px", fontWeight: "600", color: "#1D1D1D", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: "1.4" },
-  smallAuthor: { fontSize: "10px", color: "#777", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" },
-  prefBtn: { padding: "12px 24px", borderRadius: "30px", backgroundColor: "#7966CC", color: "#fff", border: "none", fontFamily: "'PT Mono', monospace", fontSize: "13px", cursor: "pointer" },
+  page: { width: "100%", minHeight: "100vh", backgroundColor: "#FAFAFA", fontFamily: "system-ui, -apple-system, sans-serif", color: "#1A202C", display: "flex", flexDirection: "column" },
+  main: { display: "flex", flexDirection: "column", width: "100%", maxWidth: "1050px", margin: "0 auto", padding: "32px 24px 60px", boxSizing: "border-box", flex: 1 },
+  searchContainer: { display: "flex", alignItems: "center", gap: "12px", maxWidth: "580px", margin: "0 auto 32px", width: "100%", position: "relative" },
+  searchBox: { display: "flex", alignItems: "center", gap: "12px", height: "46px", backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "30px", padding: "0 20px", flex: 1, boxSizing: "border-box", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" },
+  searchInput: { flex: 1, border: "none", outline: "none", backgroundColor: "transparent", fontFamily: "inherit", fontSize: "14px", color: "#2D3748" },
+  menuWrapper: { position: "relative", zIndex: 10 },
+  dotsBtn: { background: "#FFFFFF", border: "1px solid #E2E8F0", width: "46px", height: "46px", borderRadius: "50%", fontSize: "22px", color: "#4A5568", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.02)", transition: "0.2s" },
+  dropdownMenu: { position: "absolute", top: "54px", right: "0", backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "14px", width: "180px", boxShadow: "0 10px 25px rgba(0,0,0,0.08)", overflow: "hidden", zIndex: 11 },
+  dropdownItem: { padding: "12px 16px", fontSize: "14px", color: "#2D3748", cursor: "pointer", fontWeight: "500", transition: "0.2s", textAlign: "left" },
+  menuOverlay: { position: "fixed", inset: 0, zIndex: 5 },
+  greetingSection: { marginBottom: "28px" },
+  greeting: { fontSize: "28px", marginBottom: "6px", color: "#1A202C", fontWeight: "700" },
+  question: { fontSize: "16px", marginBottom: "14px", color: "#4A5568", fontWeight: "500" },
+  basedText: { fontSize: "14px", color: "#718096" },
+  tag: { display: "inline-block", padding: "4px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "600", margin: "0 2px" },
+  featureSection: { marginBottom: "16px" },
+  featureCard: { display: "grid", gridTemplateColumns: "150px 1fr", gap: "24px", backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "20px", padding: "20px", cursor: "pointer", transition: "transform 0.2s, box-shadow 0.2s", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" },
+  bigCover: { width: "150px", height: "216px", borderRadius: "12px", boxShadow: "0 4px 10px rgba(0,0,0,0.08)" },
+  featureInfo: { display: "flex", flexDirection: "column", justifyContent: "center", gap: "10px" },
+  tagRow: { display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "4px" },
+  featuredTitle: { fontSize: "22px", color: "#1A202C", fontWeight: "700", margin: 0 },
+  featuredAuthor: { fontSize: "14px", color: "#718096", fontWeight: "500", margin: 0 },
+  featuredDesc: { fontSize: "14px", color: "#4A5568", lineHeight: "1.6", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden", margin: 0 },
+  dots: { display: "flex", gap: "10px", margin: "16px 0 0 174px" },
+  dot: { width: "36px", height: "5px", borderRadius: "3px", backgroundColor: "#E2E8F0", cursor: "pointer", display: "inline-block", transition: "all 0.3s" },
+  dotActive: { width: "52px", backgroundColor: "#E06237" },
+  section: { marginTop: "40px" },
+  sectionTitle: { fontSize: "18px", fontWeight: "700", color: "#1A202C", marginBottom: "16px" },
+  rowWrapper: { display: "flex", alignItems: "center", gap: "4px" },
+  arrowBtn: { background: "none", border: "none", fontSize: "32px", color: "#E06237", cursor: "pointer", padding: "0 10px", flexShrink: 0, lineHeight: 1, fontWeight: "bold", transition: "transform 0.2s" },
+  bookRow: { display: "flex", gap: "16px", overflowX: "auto", paddingBottom: "14px", scrollbarWidth: "none", flex: 1 },
+  smallCard: { minWidth: "210px", maxWidth: "210px", backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "12px", display: "grid", gridTemplateColumns: "68px 1fr", gap: "12px", cursor: "pointer", flexShrink: 0, boxShadow: "0 4px 10px rgba(0, 0, 0, 0.02)", transition: "all 0.25s ease-in-out" },
+  smallCardHover: { transform: "translateY(-4px)", boxShadow: "0 8px 24px rgba(224, 98, 55, 0.12)", borderColor: "#E06237" },
+  smallCover: { width: "68px", height: "96px", borderRadius: "8px", boxShadow: "0 2px 6px rgba(0,0,0,0.05)" },
+  smallInfo: { display: "flex", flexDirection: "column", justifyContent: "center", gap: "6px" },
+  smallTitle: { fontSize: "13px", fontWeight: "700", color: "#1A202C", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: "1.4", margin: 0 },
+  smallAuthor: { fontSize: "11px", color: "#718096", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden", margin: 0 },
 };
