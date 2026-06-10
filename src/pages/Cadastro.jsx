@@ -5,14 +5,14 @@ import { useAuth } from "../context/AuthContext";
 
 const EyeIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
   </svg>
 );
 const EyeOffIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
-    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
-    <line x1="1" y1="1" x2="23" y2="23"/>
+    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+    <line x1="1" y1="1" x2="23" y2="23" />
   </svg>
 );
 
@@ -29,8 +29,18 @@ export default function Cadastro() {
   const validate = () => {
     const e = {};
     if (!form.nome) e.nome = "Nome é obrigatório.";
-    if (!form.dataNascimento) e.dataNascimento = "Data de nascimento é obrigatória.";
-    else if (!/^\d{2}\/\d{2}\/\d{4}$/.test(form.dataNascimento)) e.dataNascimento = "Use DD/MM/AAAA.";
+    if (!form.dataNascimento) {
+      e.dataNascimento = "Data de nascimento é obrigatória.";
+    } else {
+      const nascimento = new Date(form.dataNascimento);
+      const hoje = new Date();
+
+      if (isNaN(nascimento.getTime())) {
+        e.dataNascimento = "Data inválida.";
+      } else if (nascimento > hoje) {
+        e.dataNascimento = "A data não pode ser futura.";
+      }
+    }
     if (!form.email) e.email = "E-mail é obrigatório.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "E-mail inválido.";
     if (!form.senha) e.senha = "Senha é obrigatória.";
@@ -66,7 +76,15 @@ export default function Cadastro() {
             <input type="text" placeholder="Digite aqui..." value={form.nome} onChange={(e) => set("nome", e.target.value)} style={{ ...s.input, borderColor: errors.nome ? "#ff4d4d" : "transparent" }} />
           </Field>
           <Field label="Data de Nascimento" error={errors.dataNascimento}>
-            <input type="text" placeholder="DD/MM/AAAA" value={form.dataNascimento} onChange={(e) => set("dataNascimento", maskDate(e.target.value))} style={{ ...s.input, borderColor: errors.dataNascimento ? "#ff4d4d" : "transparent" }} />
+            <input
+              type="date"
+              value={form.dataNascimento}
+              onChange={(e) => set("dataNascimento", e.target.value)}
+              style={{
+                ...s.input,
+                borderColor: errors.dataNascimento ? "#ff4d4d" : "transparent",
+              }}
+            />
           </Field>
           <Field label="E-mail" error={errors.email}>
             <input type="email" placeholder="Digite aqui..." value={form.email} onChange={(e) => set("email", e.target.value)} style={{ ...s.input, borderColor: errors.email ? "#ff4d4d" : "transparent" }} />
