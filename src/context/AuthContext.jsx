@@ -3,19 +3,40 @@ import { createContext, useContext, useState } from "react";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  // user shape: { name, username, email, photo, birthDate, preferences: { genres, authors, books } }
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
 
-  const login = (userData) => setUser(userData);
+  const login = (userData) => {
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+  };
 
-  const logout = () => setUser(null);
+  const logout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    setUser(null);
+  };
 
   const updatePreferences = (preferences) => {
-    setUser((prev) => ({ ...prev, preferences }));
+    setUser((prev) => {
+      const updated = { ...prev, preferences };
+      localStorage.setItem("user", JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const updateProfile = (profileData) => {
-    setUser((prev) => ({ ...prev, ...profileData }));
+    setUser((prev) => {
+      const updated = { ...prev, ...profileData };
+      localStorage.setItem("user", JSON.stringify(updated));
+      return updated;
+    });
   };
 
   return (

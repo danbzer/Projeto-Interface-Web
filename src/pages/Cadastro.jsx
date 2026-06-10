@@ -1,24 +1,23 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
+import { useAuth } from "../context/AuthContext";
 
 export default function Cadastro() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
   const lidarComCadastro = (e) => {
     e.preventDefault();
-    
-    // Simulação temporária de login para evitar que as rotas protegidas te expulsem
+
     const usuarioTemporario = { nome, email, uid: "temp-user-123" };
     localStorage.setItem("user", JSON.stringify(usuarioTemporario));
-    localStorage.setItem("token", "mock-token-abc-123"); 
+    localStorage.setItem("token", "mock-token-abc-123");
+    login(usuarioTemporario);
 
-    console.log("Usuário temporário salvo! Tentando navegar para /personalizar...");
-    
-    // Navega para a página de preferências
     navigate("/personalizar");
   };
 
@@ -26,50 +25,49 @@ export default function Cadastro() {
     <div style={s.page}>
       <div style={s.overlay}>
         <Header />
-        
+
         <main style={s.main}>
           <div style={s.card}>
-            {/* Botão Voltar */}
             <div style={s.voltar} onClick={() => navigate(-1)}>
               &larr; Voltar
             </div>
 
             <h2 style={s.titulo}>Crie a sua conta</h2>
             <p style={s.subtitulo}>Comece sua jornada literária personalizada.</p>
-            
+
             <form onSubmit={lidarComCadastro} style={s.form}>
               <div style={s.inputGroup}>
                 <label style={s.label}>Nome Completo</label>
-                <input 
-                  type="text" 
-                  value={nome} 
-                  onChange={(e) => setNome(e.target.value)} 
-                  placeholder="Seu nome" 
-                  required 
+                <input
+                  type="text"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  placeholder="Seu nome"
+                  required
                   style={s.input}
                 />
               </div>
 
               <div style={s.inputGroup}>
                 <label style={s.label}>E-mail</label>
-                <input 
-                  type="email" 
-                  value={email} 
+                <input
+                  type="email"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="seuemail@exemplo.com" 
-                  required 
+                  placeholder="seuemail@exemplo.com"
+                  required
                   style={s.input}
                 />
               </div>
 
               <div style={s.inputGroup}>
                 <label style={s.label}>Senha</label>
-                <input 
-                  type="password" 
-                  value={senha} 
-                  onChange={(e) => setSenha(e.target.value)} 
-                  placeholder="Mínimo 6 caracteres" 
-                  required 
+                <input
+                  type="password"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                  required
                   style={s.input}
                 />
               </div>
@@ -85,10 +83,9 @@ export default function Cadastro() {
               <div style={s.dividerLine}></div>
             </div>
 
-            {/* Botão Google Registar Estilizado */}
-            <button 
-              type="button" 
-              style={s.btnGoogle} 
+            <button
+              type="button"
+              style={s.btnGoogle}
               onClick={() => alert("Chamando API do Google Auth...")}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" style={{ marginRight: "10px" }}>
@@ -101,7 +98,10 @@ export default function Cadastro() {
             </button>
 
             <p style={s.alternativa}>
-              Já possui conta? <span style={s.link} onClick={() => navigate("/entrar")}>Faça login</span>
+              Já possui conta?{" "}
+              <span style={s.link} onClick={() => navigate("/entrar")}>
+                Faça login
+              </span>
             </p>
           </div>
         </main>
@@ -128,5 +128,5 @@ const s = {
   orText: { fontSize: "13px", color: "#A0AEC0", padding: "0 12px", fontWeight: "500" },
   btnGoogle: { width: "100%", padding: "12px", borderRadius: "30px", backgroundColor: "#FFFFFF", color: "#4A5568", border: "1px solid #E2E8F0", fontSize: "15px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "0.2s", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" },
   alternativa: { fontSize: "14px", color: "#718096", textAlign: "center", marginTop: "24px", fontWeight: "400" },
-  link: { color: "#E06237", fontWeight: "600", cursor: "pointer", textDecoration: "underline" }
+  link: { color: "#E06237", fontWeight: "600", cursor: "pointer", textDecoration: "underline" },
 };
