@@ -1,136 +1,138 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { FaRegStar } from "react-icons/fa";
-import Header from '../../components/layout/Header';
-import Footer from '../../components/layout/Footer';
-import './bookPage.css';
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FaRegStar, FaStar } from "react-icons/fa";
+import Header from "../../components/layout/Header";
+import CoverImg from "../../components/ui/CoverImg";
+import { useShelf } from "../../context/ShelfContext";
 
-function BookPage() {
-  // Coleta os dados enviados pela home através da rota
+// Definição neutra e limpa dos status
+const STATUS_LABELS = { queroLer: "Quero Ler", lendo: "Lendo", lido: "Lido", abandonei: "Abandonei" };
+const STATUS_OPTIONS = Object.entries(STATUS_LABELS);
+
+export default function BookPage() {
   const location = useLocation();
-  
-  // Se não vier nenhum livro da home, usa dados genéricos de placeholder
-  const book = location.state || {
-    title: "Título do Livro",
-    author: "Autor",
-    genre: "Gênero",
-    description: "Espaço reservado para a sinopse ou descrição detalhada do livro selecionado."
+  const navigate = useNavigate();
+  const book = location.state || { id: "placeholder", title: "Título do Livro", author: "Autor", description: "Sinopse do livro.", cover: null, genres: [] };
+  const { addToShelf, updateShelfItem, getShelfItem } = useShelf();
+
+  const shelfItem = getShelfItem(book.id);
+  const [status, setStatus] = useState(shelfItem?.status || "queroLer");
+  const [review, setReview] = useState(shelfItem?.review || "");
+  const [rating, setRating] = useState(shelfItem?.rating || 0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [saved, setSaved] = useState(false);
+
+  const showReview = status === "lido" || status === "abandonei";
+  const showDate = status === "lido";
+
+  const handleStatusChange = (newStatus) => {
+    setStatus(newStatus);
+    addToShelf(book, newStatus);
   };
 
-  // controla o que o usuário escreve agora
-  const [textoDigitado, setTextoDigitado] = useState('');
-  // guarda o que foi confirmado no botão
-  const [textoSalvo, setTextoSalvo] = useState('');
-  
-  // Estado para controlar o status de leitura atual (Inicia como 'lido')
-  const [statusLeitura, setStatusLeitura] = useState('lido');
-
-  const handleSalvar = () => {
-    // segurança extra da regra de negócio RN02
-    if (statusLeitura !== 'lido') return;
-    console.log("Review salva:", textoDigitado);
-    setTextoSalvo(textoDigitado);
+  const handleSave = () => {
+    updateShelfItem(book.id, { review, rating, finishedAt: status === "lido" ? new Date().toLocaleDateString("pt-BR") : null });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   };
+
+  const finishedAt = shelfItem?.finishedAt || new Date().toLocaleDateString("pt-BR");
+
+  // Paleta de cores baseada nas tags do destaque da Home
+  const GENRE_BG = "#DFF0FF";
+  const GENRE_COLOR = "#326A9F";
+  const AUTHOR_BG = "#FFE1E8";
+  const AUTHOR_COLOR = "#9F3A5B";
+  const LARANJA = "#E06237"; // Nosso Laranja Oficial
 
   return (
-    <div className="book-page-container">
-      <Header showBack={true}/>
+    <div style={{ minHeight: "100vh", backgroundColor: "#FAFAFA", fontFamily: "system-ui, sans-serif", color: "#1A202C", display: "flex", flexDirection: "column" }}>
+      <Header showBack />
 
-      <main className='book-main-content'>
+      <main style={{ width: "100%", maxWidth: "1050px", margin: "0 auto", padding: "32px 24px", boxSizing: "border-box", display: "flex", gap: "40px", flex: 1 }}>
         
-        {/* COLUNA DA ESQUERDA: CAPA E TAGS */}
-        <section className='book-left-col'>
-          <div className='cover-wrapper'>
-            <button className="book-favorite-button">
-              <FaRegStar />
+        {/* Coluna esquerda: capa + tags */}
+        <section style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+          <div style={{ position: "relative", display: "inline-block" }}>
+            <button 
+              style={{ position: "absolute", top: "12px", right: "12px", width: "42px", height: "42px", border: "none", borderRadius: "50%", background: "rgba(255, 255, 255, 0.9)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", color: LARANJA, cursor: "pointer", boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)", transition: "transform 0.2s", zIndex: 2 }}
+              onClick={() => handleStatusChange("queroLer")} 
+              title="Adicionar à lista de desejos"
+            >
+              {shelfItem ? <FaStar /> : <FaRegStar />}
             </button>
-            
-            {/* Trocado a tag <img> por uma <div> placeholder para a capa */}
-            <div className="book-page-cover placeholder-cover">
-              <span className="cover-text">Capa</span>
-            </div>
+            <CoverImg src={book.cover} style={{ width: 220, height: 310, borderRadius: 16, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }} />
           </div>
-          
-          <div className="book-tags">
-            <span className="book-tag genre">{book.genre}</span>
-            <span className="book-tag author">{book.author}</span>
+          <div style={{ display: "flex", gap: "8px", marginTop: "18px", flexWrap: "wrap", justifyContent: "center" }}>
+            {(book.genres?.slice(0, 1) || []).map((g) => (
+              <span key={g} style={{ padding: "6px 14px", borderRadius: "20px", fontSize: "11px", fontWeight: "bold", backgroundColor: GENRE_BG, color: GENRE_COLOR }}>{g}</span>
+            ))}
+            <span style={{ padding: "6px 14px", borderRadius: "20px", fontSize: "11px", fontWeight: "bold", backgroundColor: AUTHOR_BG, color: AUTHOR_COLOR }}>{book.author}</span>
           </div>
         </section>
 
-        {/* COLUNA DA DIREITA: CAIXAS DE INFORMAÇÃO */}
-        <section className="book-right-col">
-          
-          {/* Caixa de review */}
-          <div className="info-card review-card" style={{ opacity: statusLeitura === 'lido' ? 1 : 0.6, transition: 'opacity 0.2s' }}>
-            <div className='card-header'>
-              <h3>Minha Review</h3>
-              <button 
-                className='save-review-btn' 
-                onClick={handleSalvar}
-                disabled={statusLeitura !== 'lido'}
-                style={{ 
-                  cursor: statusLeitura === 'lido' ? 'pointer' : 'not-allowed',
-                  backgroundColor: statusLeitura === 'lido' ? '#301C54' : '#999' 
-                }}
-              >
-                Salvar
-              </button>
-            </div>
-            <textarea
-              className='input-review-text'
-              placeholder={statusLeitura === 'lido' ? 'Digite sua review aqui...' : ''}
-              onChange={(e) => setTextoDigitado(e.target.value)}
-              value={statusLeitura === 'lido' ? textoDigitado : ''}
-              disabled={statusLeitura !== 'lido'}
-              style={{ cursor: statusLeitura === 'lido' ? 'text' : 'not-allowed' }}
-            ></textarea>
-          </div>
+        {/* Coluna direita: infos em cards limpos */}
+        <section style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
 
-          {/* Caixa de nota e status */}
-          <div className="info-card status-card">
-            <h3>Minha Nota e Status de Leitura</h3>
-            <div className="book-rating">
-              <span className="book-stars">★★★★<span className="half-star">★</span></span>
-              <span className="rating-number">4,5 de 5</span>
-            </div>
-            <div className="status-select-wrapper">
-              <select 
-                name="status" 
-                id="status" 
-                className='book-status-select'
-                value={statusLeitura}
-                onChange={(e) => setStatusLeitura(e.target.value)}
-              >
-                <option value="lido">Lido</option>
-                <option value="lendo">Lendo</option>
-                <option value="queroLer">Quero Ler</option>
-                <option value="abandonei">Abandonei</option>
-              </select>
+          {/* Status */}
+          <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "18px 22px", boxShadow: "0 4px 12px rgba(0,0,0,0.01)" }}>
+            <h3 style={{ margin: "0 0 10px 0", fontSize: "12px", color: "#718096", textTransform: "uppercase", letterSpacing: "0.8px", fontWeight: "bold" }}>Status de Leitura</h3>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {STATUS_OPTIONS.map(([val, label]) => (
+                <button key={val} onClick={() => handleStatusChange(val)}
+                  style={{ padding: "8px 16px", borderRadius: "20px", border: status === val ? `2px solid ${LARANJA}` : "2px solid #E2E8F0", cursor: "pointer", fontFamily: "inherit", fontSize: "12px", fontWeight: status === val ? "700" : "500", backgroundColor: status === val ? "#FFF" : "#F8FAFC", color: status === val ? LARANJA : "#4A5568", transition: "all 0.2s" }}>
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Caixa de data: só mostra a data de término se o livro foi concluído */}
-          {statusLeitura === 'lido' && (
-            <div className="info-card date-card" style={{ animation: 'fadeIn 0.3s' }}>
-              <h3>Data de Término:</h3>
-              <div className="date-display">
-                <span className="calendar-emoji">&#128197;</span>
-                <span className="date-text">15/04/2026</span>
+          {/* Avaliação */}
+          <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "18px 22px", boxShadow: "0 4px 12px rgba(0,0,0,0.01)" }}>
+            <h3 style={{ margin: "0 0 10px 0", fontSize: "12px", color: "#718096", textTransform: "uppercase", letterSpacing: "0.8px", fontWeight: "bold" }}>Minha Nota</h3>
+            <div style={{ display: "flex", gap: "4px" }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button key={star} onMouseEnter={() => setHoverRating(star)} onMouseLeave={() => setHoverRating(0)} onClick={() => setRating(star)}
+                  style={{ background: "none", border: "none", cursor: "pointer", fontSize: "28px", color: (hoverRating || rating) >= star ? "#F2C94C" : "#E2E8F0", padding: 0, transition: "color 0.1s" }}>
+                  ★
+                </button>
+              ))}
+              {rating > 0 && <span style={{ fontSize: "14px", color: "#1A202C", alignSelf: "center", marginLeft: "10px", fontWeight: "bold" }}>{rating} de 5</span>}
+            </div>
+          </div>
+
+          {/* Review */}
+          {showReview && (
+            <div style={{ animation: "fadeIn 0.3s", backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "18px 22px", boxShadow: "0 4px 12px rgba(0,0,0,0.01)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                <h3 style={{ margin: 0, fontSize: "12px", color: "#718096", textTransform: "uppercase", letterSpacing: "0.8px", fontWeight: "bold" }}>Minha Review</h3>
+                <button onClick={handleSave} style={{ padding: "6px 16px", color: "#FFFFFF", border: "none", borderRadius: "20px", cursor: "pointer", fontSize: "11px", fontWeight: "bold", backgroundColor: saved ? "#34A853" : LARANJA, transition: "0.2s" }}>
+                  {saved ? "Salvo! ✓" : "Salvar"}
+                </button>
+              </div>
+              <textarea style={{ width: "100%", minHeight: "80px", padding: "10px", backgroundColor: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "8px", resize: "none", outline: "none", fontFamily: "inherit", fontSize: "13px", color: "#1A202C", lineHeight: "1.5", boxSizing: "border-box" }} placeholder="O que você achou deste livro? Escreva sua review aqui..." value={review} onChange={(e) => setReview(e.target.value)} />
+            </div>
+          )}
+
+          {/* Data */}
+          {showDate && (
+            <div style={{ animation: "fadeIn 0.3s", backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "18px 22px", boxShadow: "0 4px 12px rgba(0,0,0,0.01)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0, fontSize: "12px", color: "#718096", textTransform: "uppercase", letterSpacing: "0.8px", fontWeight: "bold" }}>Data de Término</h3>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "16px" }}>📅</span>
+                <span style={{ fontSize: "14px", fontWeight: "bold", color: LARANJA }}>{finishedAt}</span>
               </div>
             </div>
           )}
         </section>
       </main>
 
-      {/* SEÇÃO INFERIOR: DETALHES DA OBRA */}
-      <section className="book-description-section">
-        <h2 className='book-page-title'>{book.title}</h2>
-        <p className='book-description-body'>{book.description}</p>
+      {/* Descrição Inferior */}
+      <section style={{ width: "100%", maxWidth: "1050px", margin: "0 auto", padding: "16px 24px 64px", boxSizing: "border-box" }}>
+        <h2 style={{ fontSize: "26px", color: "#1A202C", fontWeight: "bold", margin: "0 0 12px 0" }}>{book.title}</h2>
+        {book.publishedDate && <p style={{ fontSize: "12px", color: "#718096", marginBottom: "16px", margin: 0 }}>{book.publishedDate} · {book.pageCount ? `${book.pageCount} páginas` : ""}</p>}
+        <div style={{ fontSize: "15px", lineHeight: "1.7", color: "#4A5568", marginTop: "16px" }} dangerouslySetInnerHTML={{ __html: book.description || "Sem descrição disponível." }} />
       </section>
-
-      <Footer />
     </div>
   );
 }
-
-export default BookPage;
