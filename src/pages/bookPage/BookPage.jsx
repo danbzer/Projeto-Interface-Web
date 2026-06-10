@@ -1,136 +1,135 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { FaRegStar } from "react-icons/fa";
-import Header from '../../components/layout/Header';
-import Footer from '../../components/layout/Footer';
-import './bookPage.css';
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FaRegStar, FaStar } from "react-icons/fa";
+import Header from "../../components/layout/Header";
+import Footer from "../../components/layout/Footer";
+import CoverImg from "../../components/ui/CoverImg";
+import { useShelf } from "../../context/ShelfContext";
+import "./bookPage.css";
 
-function BookPage() {
-  // Coleta os dados enviados pela home através da rota
+const STATUS_LABELS = { queroLer: "Quero Ler", lendo: "Lendo", lido: "Lido", abandonei: "Abandonei" };
+const STATUS_OPTIONS = Object.entries(STATUS_LABELS);
+
+export default function BookPage() {
   const location = useLocation();
-  
-  // Se não vier nenhum livro da home, usa dados genéricos de placeholder
-  const book = location.state || {
-    title: "Título do Livro",
-    author: "Autor",
-    genre: "Gênero",
-    description: "Espaço reservado para a sinopse ou descrição detalhada do livro selecionado."
+  const navigate = useNavigate();
+  const book = location.state || { id: "placeholder", title: "Título do Livro", author: "Autor", description: "Sinopse do livro.", cover: null, genres: [] };
+  const { addToShelf, updateShelfItem, getShelfItem } = useShelf();
+
+  const shelfItem = getShelfItem(book.id);
+  const [status, setStatus] = useState(shelfItem?.status || "queroLer");
+  const [review, setReview] = useState(shelfItem?.review || "");
+  const [rating, setRating] = useState(shelfItem?.rating || 0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [saved, setSaved] = useState(false);
+
+  const showReview = status === "lido" || status === "abandonei";
+  const showDate = status === "lido";
+
+  const handleStatusChange = (newStatus) => {
+    setStatus(newStatus);
+    addToShelf(book, newStatus);
   };
 
-  // controla o que o usuário escreve agora
-  const [textoDigitado, setTextoDigitado] = useState('');
-  // guarda o que foi confirmado no botão
-  const [textoSalvo, setTextoSalvo] = useState('');
-  
-  // Estado para controlar o status de leitura atual (Inicia como 'lido')
-  const [statusLeitura, setStatusLeitura] = useState('lido');
-
-  const handleSalvar = () => {
-    // segurança extra da regra de negócio RN02
-    if (statusLeitura !== 'lido') return;
-    console.log("Review salva:", textoDigitado);
-    setTextoSalvo(textoDigitado);
+  const handleSave = () => {
+    updateShelfItem(book.id, { review, rating, finishedAt: status === "lido" ? new Date().toLocaleDateString("pt-BR") : null });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   };
+
+  const finishedAt = shelfItem?.finishedAt || new Date().toLocaleDateString("pt-BR");
 
   return (
     <div className="book-page-container">
-      <Header showBack={true}/>
+      <Header showBack />
 
-      <main className='book-main-content'>
-        
-        {/* COLUNA DA ESQUERDA: CAPA E TAGS */}
-        <section className='book-left-col'>
-          <div className='cover-wrapper'>
-            <button className="book-favorite-button">
-              <FaRegStar />
+      <main className="book-main-content">
+        {/* Coluna esquerda: capa + tags */}
+        <section className="book-left-col">
+          <div className="cover-wrapper">
+            <button className="book-favorite-button" onClick={() => handleStatusChange("queroLer")} title="Adicionar à lista">
+              {shelfItem ? <FaStar style={{ color: "#F2C94C" }} /> : <FaRegStar />}
             </button>
-            
-            {/* Trocado a tag <img> por uma <div> placeholder para a capa */}
-            <div className="book-page-cover placeholder-cover">
-              <span className="cover-text">Capa</span>
-            </div>
+            <CoverImg src={book.cover} style={{ width: 220, height: 310, borderRadius: 16, boxShadow: "0 8px 24px rgba(48,28,84,0.12)" }} />
           </div>
-          
           <div className="book-tags">
-            <span className="book-tag genre">{book.genre}</span>
+            {(book.genres?.slice(0, 1) || []).map((g) => <span key={g} className="book-tag genre">{g}</span>)}
             <span className="book-tag author">{book.author}</span>
           </div>
         </section>
 
-        {/* COLUNA DA DIREITA: CAIXAS DE INFORMAÇÃO */}
+        {/* Coluna direita: infos */}
         <section className="book-right-col">
-          
-          {/* Caixa de review */}
-          <div className="info-card review-card" style={{ opacity: statusLeitura === 'lido' ? 1 : 0.6, transition: 'opacity 0.2s' }}>
-            <div className='card-header'>
-              <h3>Minha Review</h3>
-              <button 
-                className='save-review-btn' 
-                onClick={handleSalvar}
-                disabled={statusLeitura !== 'lido'}
-                style={{ 
-                  cursor: statusLeitura === 'lido' ? 'pointer' : 'not-allowed',
-                  backgroundColor: statusLeitura === 'lido' ? '#301C54' : '#999' 
-                }}
-              >
-                Salvar
-              </button>
-            </div>
-            <textarea
-              className='input-review-text'
-              placeholder={statusLeitura === 'lido' ? 'Digite sua review aqui...' : ''}
-              onChange={(e) => setTextoDigitado(e.target.value)}
-              value={statusLeitura === 'lido' ? textoDigitado : ''}
-              disabled={statusLeitura !== 'lido'}
-              style={{ cursor: statusLeitura === 'lido' ? 'text' : 'not-allowed' }}
-            ></textarea>
-          </div>
 
-          {/* Caixa de nota e status */}
+          {/* Status */}
           <div className="info-card status-card">
-            <h3>Minha Nota e Status de Leitura</h3>
-            <div className="book-rating">
-              <span className="book-stars">★★★★<span className="half-star">★</span></span>
-              <span className="rating-number">4,5 de 5</span>
-            </div>
-            <div className="status-select-wrapper">
-              <select 
-                name="status" 
-                id="status" 
-                className='book-status-select'
-                value={statusLeitura}
-                onChange={(e) => setStatusLeitura(e.target.value)}
-              >
-                <option value="lido">Lido</option>
-                <option value="lendo">Lendo</option>
-                <option value="queroLer">Quero Ler</option>
-                <option value="abandonei">Abandonei</option>
-              </select>
+            <h3>Status de Leitura</h3>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {STATUS_OPTIONS.map(([val, label]) => (
+                <button key={val} onClick={() => handleStatusChange(val)}
+                  style={{ padding: "8px 16px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "'PT Mono', monospace", fontSize: 12, backgroundColor: status === val ? "#7966CC" : "#E5E0EA", color: status === val ? "#fff" : "#301C54", transition: "all 0.2s" }}>
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Caixa de data: só mostra a data de término se o livro foi concluído */}
-          {statusLeitura === 'lido' && (
-            <div className="info-card date-card" style={{ animation: 'fadeIn 0.3s' }}>
-              <h3>Data de Término:</h3>
+          {/* Avaliação */}
+          <div className="info-card">
+            <h3>Minha Nota</h3>
+            <div style={{ display: "flex", gap: 4 }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button key={star} onMouseEnter={() => setHoverRating(star)} onMouseLeave={() => setHoverRating(0)} onClick={() => setRating(star)}
+                  style={{ background: "none", border: "none", cursor: "pointer", fontSize: 24, color: (hoverRating || rating) >= star ? "#F2C94C" : "#D8D1E4", padding: 0, transition: "color 0.1s" }}>
+                  ★
+                </button>
+              ))}
+              {rating > 0 && <span style={{ fontSize: 13, color: "#555", alignSelf: "center", marginLeft: 8 }}>{rating} de 5</span>}
+            </div>
+          </div>
+
+          {/* Review (só para lido/abandonei) */}
+          {showReview && (
+            <div className="info-card review-card" style={{ animation: "fadeIn 0.3s" }}>
+              <div className="card-header">
+                <h3>Minha Review</h3>
+                <button className="save-review-btn" onClick={handleSave} style={{ backgroundColor: saved ? "#27ae60" : "#301C54" }}>
+                  {saved ? "Salvo! ✓" : "Salvar"}
+                </button>
+              </div>
+              <textarea className="input-review-text" placeholder="Escreva sua review aqui..." value={review} onChange={(e) => setReview(e.target.value)} />
+            </div>
+          )}
+
+          {/* Data de término */}
+          {showDate && (
+            <div className="info-card date-card" style={{ animation: "fadeIn 0.3s" }}>
+              <h3>Data de Término</h3>
               <div className="date-display">
-                <span className="calendar-emoji">&#128197;</span>
-                <span className="date-text">15/04/2026</span>
+                <span className="calendar-emoji">📅</span>
+                <span className="date-text">{finishedAt}</span>
               </div>
             </div>
+          )}
+
+          {/* Adicionar à biblioteca */}
+          {!shelfItem && (
+            <button onClick={() => { addToShelf(book, "queroLer"); setStatus("queroLer"); }}
+              style={{ padding: "12px 24px", borderRadius: 30, border: "none", backgroundColor: "#7966CC", color: "#fff", fontFamily: "'PT Mono', monospace", fontSize: 13, cursor: "pointer" }}>
+              + Adicionar à Biblioteca
+            </button>
           )}
         </section>
       </main>
 
-      {/* SEÇÃO INFERIOR: DETALHES DA OBRA */}
+      {/* Descrição */}
       <section className="book-description-section">
-        <h2 className='book-page-title'>{book.title}</h2>
-        <p className='book-description-body'>{book.description}</p>
+        <h2 className="book-page-title">{book.title}</h2>
+        {book.publishedDate && <p style={{ fontSize: 12, color: "#888", marginBottom: 8 }}>{book.publishedDate} · {book.pageCount ? `${book.pageCount} páginas` : ""}</p>}
+        <p className="book-description-body" dangerouslySetInnerHTML={{ __html: book.description || "Sem descrição disponível." }} />
       </section>
 
       <Footer />
     </div>
   );
 }
-
-export default BookPage;
