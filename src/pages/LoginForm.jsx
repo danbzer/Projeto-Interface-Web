@@ -1,227 +1,87 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
+import { useAuth } from "../context/AuthContext";
 
 const EyeIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-    <circle cx="12" cy="12" r="3"/>
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
   </svg>
 );
-
 const EyeOffIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
     <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
     <line x1="1" y1="1" x2="23" y2="23"/>
   </svg>
 );
 
-function LoginForm() {
+export default function LoginForm() {
   const navigate = useNavigate();
-
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
 
   const validate = () => {
-    const newErrors = {};
-
-    if (!email) {
-      newErrors.email = "E-mail é obrigatório.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "E-mail inválido.";
-    }
-
-    if (!password) {
-      newErrors.password = "Senha é obrigatória.";
-    } else if (password.length < 6) {
-      newErrors.password = "A senha deve conter no mínimo 6 caracteres.";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const e = {};
+    if (!email) e.email = "E-mail é obrigatório.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = "E-mail inválido.";
+    if (!password) e.password = "Senha é obrigatória.";
+    else if (password.length < 6) e.password = "Mínimo 6 caracteres.";
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
   const handleSubmit = () => {
-    if (validate()) {
-      navigate("/home");
-    }
-  };
-
-  // Helper para renderizar a dica de senha em tempo real
-  const renderPasswordHint = () => {
-    // Se o usuário já tentou submeter e tem um erro estático de senha obrigatória, mantém ele
-    if (errors.password && !password) return null;
-
-    if (password.length > 0 && password.length < 6) {
-      return (
-        <span style={{ ...styles.hintMsg, color: "#FFD066" }}>
-          ⚠️ Mínimo de 6 caracteres (restam {6 - password.length})
-        </span>
-      );
-    } else if (password.length >= 6) {
-      return (
-        <span style={{ ...styles.hintMsg, color: "#66FF99" }}>
-          ✅ Senha válida!
-        </span>
-      );
-    }
-    return null;
+    if (!validate()) return;
+    // Mock login — in production, call your auth API here
+    login({ name: "Usuário", email, username: "", photo: null, preferences: null });
+    navigate("/home");
   };
 
   return (
-    <div style={styles.page}>
-      <Header showBack={true} />
-
-      <main style={styles.main}>
-        <h2 style={styles.title}>Entrar</h2>
-
-        <div style={styles.form}>
-          {/* email */}
-          <div style={styles.field}>
-            <label style={styles.label}>E-mail</label>
-            <input
-              type="email"
-              placeholder="Digite aqui..."
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{
-                ...styles.input,
-                border: errors.email ? "2px solid #ff4d4d" : "none",
-              }}
-            />
-            {errors.email && <span style={styles.errorMsg}>{errors.email}</span>}
-          </div>
-
-          {/* senha */}
-          <div style={styles.field}>
-            <label style={styles.label}>Senha</label>
-            <div style={styles.inputWrapper}>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Digite aqui..."
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  // Limpa o erro estático de senha assim que o usuário digita para a dica assumir
-                  if (errors.password) setErrors(prev => ({ ...prev, password: null }));
-                }}
-                style={{
-                  ...styles.input,
-                  border: errors.password ? "2px solid #ff4d4d" : "none",
-                }}
-              />
-              <button
-                style={styles.eyeBtn}
-                onClick={() => setShowPassword(!showPassword)}
-                title={showPassword ? "Esconder senha" : "Mostrar senha"}
-              >
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
+    <div style={s.page}>
+      <Header showBack />
+      <main style={s.main}>
+        <h2 style={s.title}>Entrar</h2>
+        <div style={s.form}>
+          <Field label="E-mail" error={errors.email}>
+            <input type="email" placeholder="Digite aqui..." value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...s.input, borderColor: errors.email ? "#ff4d4d" : "transparent" }} />
+          </Field>
+          <Field label="Senha" error={errors.password}>
+            <div style={{ position: "relative" }}>
+              <input type={showPassword ? "text" : "password"} placeholder="Digite aqui..." value={password} onChange={(e) => setPassword(e.target.value)} style={{ ...s.input, borderColor: errors.password ? "#ff4d4d" : "transparent" }} />
+              <button style={s.eyeBtn} onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOffIcon /> : <EyeIcon />}</button>
             </div>
-            {/* Exibe o feedback em tempo real ou a mensagem de erro tradicional */}
-            {renderPasswordHint()}
-            {errors.password && <span style={styles.errorMsg}>{errors.password}</span>}
-          </div>
-
-          <button style={styles.btnSolid} onClick={handleSubmit}>Entrar</button>
+          </Field>
+          <button style={s.btnSolid} onClick={handleSubmit}>Entrar</button>
+          <p style={s.link}>Não tem conta? <span style={s.linkSpan} onClick={() => navigate("/cadastro")}>Cadastre-se</span></p>
         </div>
       </main>
     </div>
   );
 }
 
-const styles = {
-  page: {
-    minHeight: "100vh",
-    backgroundColor: "#7966CC",
-    fontFamily: "'PT Mono', monospace",
-  },
-  main: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "60px 40px",
-    gap: "24px",
-  },
-  title: {
-    fontSize: "20px",
-    color: "#F5F0FF",
-    fontWeight: "400",
-    margin: "0",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px",
-    width: "100%",
-    maxWidth: "360px",
-  },
-  field: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-  },
-  label: {
-    fontSize: "14px",
-    color: "#F5F0FF",
-  },
-  inputWrapper: {
-    position: "relative",
-  },
-  input: {
-    width: "100%",
-    padding: "14px 20px",
-    borderRadius: "30px",
-    border: "none",
-    backgroundColor: "#d0d0d0",
-    fontSize: "14px",
-    fontFamily: "'PT Mono', monospace",
-    color: "#333",
-    boxSizing: "border-box",
-    outline: "none",
-  },
-  eyeBtn: {
-    position: "absolute",
-    right: "16px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "0",
-  },
-  btnSolid: {
-    width: "100%",
-    padding: "16px",
-    borderRadius: "30px",
-    backgroundColor: "#301C54",
-    color: "#fff",
-    border: "none",
-    fontFamily: "'PT Mono', monospace",
-    fontSize: "18px",
-    cursor: "pointer",
-    marginTop: "16px",
-  },
-  errorMsg: {
-    fontSize: "12px",
-    color: "#ff4d4d",
-    marginTop: "4px",
-    paddingLeft: "12px",
-  },
-  hintMsg: {
-    fontSize: "11px",
-    marginTop: "5px",
-    paddingLeft: "12px",
-    fontWeight: "600",
-    transition: "color 0.2s ease",
-  },
-};
+function Field({ label, error, children }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      <label style={{ fontSize: "14px", color: "#F5F0FF" }}>{label}</label>
+      {children}
+      {error && <span style={{ fontSize: "12px", color: "#ff4d4d", paddingLeft: "12px" }}>{error}</span>}
+    </div>
+  );
+}
 
-export default LoginForm;
+const s = {
+  page: { minHeight: "100vh", backgroundColor: "#7966CC", fontFamily: "'PT Mono', monospace" },
+  main: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "60px 40px", gap: "24px" },
+  title: { fontSize: "20px", color: "#F5F0FF", fontWeight: "400" },
+  form: { display: "flex", flexDirection: "column", gap: "20px", width: "100%", maxWidth: "360px" },
+  input: { width: "100%", padding: "14px 20px", borderRadius: "30px", border: "2px solid transparent", backgroundColor: "#d0d0d0", fontSize: "14px", fontFamily: "'PT Mono', monospace", color: "#333", boxSizing: "border-box", outline: "none" },
+  eyeBtn: { position: "absolute", right: "16px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center" },
+  btnSolid: { width: "100%", padding: "16px", borderRadius: "30px", backgroundColor: "#301C54", color: "#fff", border: "none", fontFamily: "'PT Mono', monospace", fontSize: "16px", cursor: "pointer", marginTop: "8px" },
+  link: { fontSize: "13px", color: "#F5F0FF", textAlign: "center" },
+  linkSpan: { textDecoration: "underline", cursor: "pointer" },
+};
