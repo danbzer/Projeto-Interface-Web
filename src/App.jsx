@@ -9,6 +9,8 @@ import Home from "./pages/Home";
 import BookPage from "./pages/bookPage/BookPage";
 import MinhaBiblioteca from "./pages/MinhaBiblioteca";
 import Perfil from "./pages/Perfil";
+import Configuracoes from './pages/Configuracoes'
+import Ajuda from "./pages/Ajuda";
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -30,6 +32,8 @@ function AppRoutes() {
       <Route path="/livro" element={<PrivateRoute><BookPage /></PrivateRoute>} />
       <Route path="/biblioteca" element={<PrivateRoute><MinhaBiblioteca /></PrivateRoute>} />
       <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
+      <Route path="/configuracoes" element={<Configuracoes />} />
+      <Route path="/ajuda" element={<Ajuda />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
