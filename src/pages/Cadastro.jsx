@@ -42,6 +42,18 @@ export default function Cadastro() {
     navigate("/personalizar");
   };
 
+  // Simulação da chamada da API do Google
+  const handleGoogleLogin = () => {
+    const googleUser = {
+      name: "Usuário do Google",
+      email: "google@exemplo.com",
+      uid: "google-uid-123"
+    };
+    login(googleUser);
+    // Para cadastro com Google, faz sentido ir para /personalizar também!
+    navigate("/personalizar"); 
+  };
+
   return (
     <div style={s.page}>
       <div style={s.overlay}>
@@ -127,7 +139,7 @@ export default function Cadastro() {
               <div style={s.dividerLine}></div>
             </div>
 
-            <button type="button" style={s.btnGoogle} onClick={() => alert("Chamando API do Google Auth...")}>
+            <button type="button" style={s.btnGoogle} onClick={handleGoogleLogin}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" style={{ marginRight: "10px" }}>
                 <path fill="#EA4335" d="M24 9.5c3.5 0 6.9 1.2 9.5 3.3l7-7C36.3 2.4 30.6 0 24 0 14.6 0 6.7 5.4 3 13l7.7 6c1.8-5.5 7-9.5 13.3-9.5z"/>
                 <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.2-.4-4.7H24v9h12.7c-.5 2.9-2.2 5.3-4.7 7l7.4 5.7c4.3-4 7.1-10 7.1-17z"/>

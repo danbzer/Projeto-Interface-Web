@@ -40,6 +40,17 @@ export default function LoginForm() {
     navigate("/home");
   };
 
+  // Simulação da chamada da API do Google
+  const handleGoogleLogin = () => {
+    const googleUser = {
+      name: "Usuário do Google",
+      email: "google@exemplo.com",
+      uid: "google-uid-123"
+    };
+    login(googleUser);
+    navigate("/home");
+  };
+
   return (
     <div style={s.page}>
       <Header showBack />
@@ -75,6 +86,22 @@ export default function LoginForm() {
             </Field>
 
             <button style={s.btnSolid} onClick={handleSubmit}>Entrar</button>
+
+            <div style={s.dividerContainer}>
+              <div style={s.dividerLine}></div>
+              <span style={s.orText}>ou</span>
+              <div style={s.dividerLine}></div>
+            </div>
+
+            <button type="button" style={s.btnGoogle} onClick={handleGoogleLogin}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" style={{ marginRight: "10px" }}>
+                <path fill="#EA4335" d="M24 9.5c3.5 0 6.9 1.2 9.5 3.3l7-7C36.3 2.4 30.6 0 24 0 14.6 0 6.7 5.4 3 13l7.7 6c1.8-5.5 7-9.5 13.3-9.5z"/>
+                <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.2-.4-4.7H24v9h12.7c-.5 2.9-2.2 5.3-4.7 7l7.4 5.7c4.3-4 7.1-10 7.1-17z"/>
+                <path fill="#FBBC05" d="M10.7 29c-1-2.9-1-6 0-9L3 14c-3.2 6.4-3.2 14 0 20.4l7.7-5.4z"/>
+                <path fill="#34A853" d="M24 48c6.5 0 12.3-2.1 16.4-5.8l-7.4-5.7c-2.5 1.7-5.7 2.6-9 2.6-6.3 0-11.5-4-13.3-9.5L3 35c3.7 7.6 11.6 13 21 13z"/>
+              </svg>
+              Entrar com o Google
+            </button>
             
             <p style={s.link}>
               Não tem uma conta? <span style={s.linkSpan} onClick={() => navigate("/cadastro")}>Cadastre-se</span>
@@ -102,10 +129,14 @@ const s = {
   cardForm: { background: "#FFFFFF", padding: "40px 32px", borderRadius: "24px", boxShadow: "0 10px 25px rgba(0,0,0,0.05)", width: "100%", maxWidth: "400px" },
   title: { fontSize: "24px", color: "#1A202C", fontWeight: "700", textAlign: "center", marginBottom: "6px" },
   subtitle: { fontSize: "14px", color: "#718096", textAlign: "center", marginBottom: "28px" },
-  form: { display: "flex", flexDirection: "column", gap: "20px" },
+  form: { display: "flex", flexDirection: "column", gap: "16px" },
   input: { width: "100%", padding: "12px 18px", borderRadius: "30px", backgroundColor: "#F7FAFC", fontSize: "14px", color: "#2D3748", boxSizing: "border-box", outline: "none", transition: "0.2s" },
   eyeBtn: { position: "absolute", right: "16px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center" },
-  btnSolid: { width: "100%", padding: "14px", borderRadius: "30px", backgroundColor: "#E06237", color: "#fff", border: "none", fontSize: "16px", fontWeight: "600", cursor: "pointer", marginTop: "10px", transition: "0.2s" },
-  link: { fontSize: "14px", color: "#718096", textAlign: "center", marginTop: "4px" },
+  btnSolid: { width: "100%", padding: "14px", borderRadius: "30px", backgroundColor: "#E06237", color: "#fff", border: "none", fontSize: "16px", fontWeight: "600", cursor: "pointer", marginTop: "4px", transition: "0.2s" },
+  dividerContainer: { display: "flex", alignItems: "center", width: "100%", margin: "4px 0" },
+  dividerLine: { flex: 1, height: "1px", background: "#E2E8F0" },
+  orText: { fontSize: "13px", color: "#A0AEC0", padding: "0 12px", fontWeight: "500" },
+  btnGoogle: { width: "100%", padding: "12px", borderRadius: "30px", backgroundColor: "#FFFFFF", color: "#4A5568", border: "1px solid #E2E8F0", fontSize: "15px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "0.2s", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" },
+  link: { fontSize: "14px", color: "#718096", textAlign: "center", marginTop: "8px" },
   linkSpan: { color: "#E06237", fontWeight: "600", cursor: "pointer", textDecoration: "underline" },
 };

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
 import fundoImg from "../assets/images/fundo.jpg";
+import { useAuth } from "../context/AuthContext";
 
 const slides = [
   { image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&q=80", text: "Descubra novos livros e expanda seus horizons." },
@@ -12,12 +13,25 @@ const slides = [
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrent((p) => (p + 1) % slides.length), 4000);
     return () => clearInterval(timer);
   }, []);
+
+  // Simulação da chamada da API do Google
+  const handleGoogleLogin = () => {
+    // Aqui entrará o seu código real (ex: signInWithPopup do Firebase)
+    const googleUser = {
+      name: "Usuário do Google",
+      email: "google@exemplo.com",
+      uid: "google-uid-123"
+    };
+    login(googleUser);
+    navigate("/home");
+  };
 
   return (
     <div style={s.page}>
@@ -62,7 +76,7 @@ export default function Login() {
             </div>
 
             <div style={s.socialRow}>
-              <SocialBtn title="Google">
+              <SocialBtn title="Google" onClick={handleGoogleLogin}>
                 <svg width="20" height="20" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -85,9 +99,10 @@ export default function Login() {
   );
 }
 
-function SocialBtn({ title, children }) {
+// O componente agora recebe onClick
+function SocialBtn({ title, children, onClick }) {
   return (
-    <button title={title} style={s.socialBtn}>
+    <button title={title} style={s.socialBtn} onClick={onClick}>
       {children}
     </button>
   );
