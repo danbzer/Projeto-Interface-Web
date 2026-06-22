@@ -18,7 +18,7 @@ const EyeOffIcon = () => (
 
 export default function LoginForm() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, register, loginWithGoogle } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,23 +34,24 @@ export default function LoginForm() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (!validate()) return;
-    login({ name: "Usuário", email, username: "", photo: null, preferences: null });
+const handleSubmit = async () => {
+  if (!validate()) return;
+  try {
+    await login(email, password); // login real no Firebase
     navigate("/home");
-  };
+  } catch (err) {
+    setErrors({ geral: "E-mail ou senha incorretos." });
+  }
+};
 
-  // Simulação da chamada da API do Google
-  const handleGoogleLogin = () => {
-    const googleUser = {
-      name: "Usuário do Google",
-      email: "google@exemplo.com",
-      uid: "google-uid-123"
-    };
-    login(googleUser);
+const handleGoogleLogin = async () => {
+  try {
+    await loginWithGoogle();
     navigate("/home");
-  };
-
+  } catch (err) {
+    console.error(err);
+  }
+};
   return (
     <div style={s.page}>
       <Header showBack />

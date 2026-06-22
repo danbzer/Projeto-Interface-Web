@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function Cadastro() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -34,24 +34,38 @@ export default function Cadastro() {
     return Object.keys(e).length === 0;
   };
 
-  const lidarComCadastro = (e) => {
+  const lidarComCadastro = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    const usuarioTemporario = { name: nome, email, uid: "temp-user-123" };
-    login(usuarioTemporario);
-    navigate("/personalizar");
+    try {
+      await register(nome, email, senha);
+      navigate("/personalizar");
+    } catch (err) {
+      console.log("Erro Firebase:", err.code); // isso vai te mostrar o código real no console
+      switch (err.code) {
+        case "auth/email-already-in-use":
+          setErrors({ email: "Este e-mail já está em uso." });
+          break;
+        case "auth/weak-password":
+          setErrors({ senha: "Senha muito fraca." });
+          break;
+        case "auth/invalid-email":
+          setErrors({ email: "E-mail inválido." });
+          break;
+        default:
+          setErrors({ geral: `Erro ao cadastrar: ${err.code}` });
+
+      }
+    }
   };
 
-  // Simulação da chamada da API do Google
-  const handleGoogleLogin = () => {
-    const googleUser = {
-      name: "Usuário do Google",
-      email: "google@exemplo.com",
-      uid: "google-uid-123"
-    };
-    login(googleUser);
-    // Para cadastro com Google, faz sentido ir para /personalizar também!
-    navigate("/personalizar"); 
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+      navigate("/home");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -129,6 +143,11 @@ export default function Cadastro() {
                   <span style={{ ...s.errorMsg, color: "#38A169" }}>✓ Senhas coincidem</span>
                 )}
               </div>
+              {errors.geral && (
+                <p style={{ color: "#E53E3E", fontSize: "13px", textAlign: "center" }}>
+                  {errors.geral}
+                </p>
+              )}
 
               <button type="submit" style={s.btnSolid}>Cadastrar</button>
             </form>
@@ -141,10 +160,10 @@ export default function Cadastro() {
 
             <button type="button" style={s.btnGoogle} onClick={handleGoogleLogin}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" style={{ marginRight: "10px" }}>
-                <path fill="#EA4335" d="M24 9.5c3.5 0 6.9 1.2 9.5 3.3l7-7C36.3 2.4 30.6 0 24 0 14.6 0 6.7 5.4 3 13l7.7 6c1.8-5.5 7-9.5 13.3-9.5z"/>
-                <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.2-.4-4.7H24v9h12.7c-.5 2.9-2.2 5.3-4.7 7l7.4 5.7c4.3-4 7.1-10 7.1-17z"/>
-                <path fill="#FBBC05" d="M10.7 29c-1-2.9-1-6 0-9L3 14c-3.2 6.4-3.2 14 0 20.4l7.7-5.4z"/>
-                <path fill="#34A853" d="M24 48c6.5 0 12.3-2.1 16.4-5.8l-7.4-5.7c-2.5 1.7-5.7 2.6-9 2.6-6.3 0-11.5-4-13.3-9.5L3 35c3.7 7.6 11.6 13 21 13z"/>
+                <path fill="#EA4335" d="M24 9.5c3.5 0 6.9 1.2 9.5 3.3l7-7C36.3 2.4 30.6 0 24 0 14.6 0 6.7 5.4 3 13l7.7 6c1.8-5.5 7-9.5 13.3-9.5z" />
+                <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.2-.4-4.7H24v9h12.7c-.5 2.9-2.2 5.3-4.7 7l7.4 5.7c4.3-4 7.1-10 7.1-17z" />
+                <path fill="#FBBC05" d="M10.7 29c-1-2.9-1-6 0-9L3 14c-3.2 6.4-3.2 14 0 20.4l7.7-5.4z" />
+                <path fill="#34A853" d="M24 48c6.5 0 12.3-2.1 16.4-5.8l-7.4-5.7c-2.5 1.7-5.7 2.6-9 2.6-6.3 0-11.5-4-13.3-9.5L3 35c3.7 7.6 11.6 13 21 13z" />
               </svg>
               Registrar com o Google
             </button>
@@ -162,14 +181,14 @@ export default function Cadastro() {
 
 const EyeIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#718096" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
   </svg>
 );
 const EyeOffIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#718096" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
-    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
-    <line x1="1" y1="1" x2="23" y2="23"/>
+    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+    <line x1="1" y1="1" x2="23" y2="23" />
   </svg>
 );
 

@@ -1,36 +1,49 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { db } from "../services/firebase";
+import { collection, doc, getDocs, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { useAuth } from "./AuthContext";
 
 const ShelfContext = createContext(null);
 
-// status: 'queroLer' | 'lendo' | 'lido' | 'abandonei'
 export function ShelfProvider({ children }) {
+  const { user } = useAuth();
   const [shelf, setShelf] = useState([]);
-  // item shape: { book: {...googleBooksData}, status, review, rating, finishedAt }
 
-  const addToShelf = (book, status = "queroLer") => {
-    setShelf((prev) => {
-      const exists = prev.find((i) => i.book.id === book.id);
-      if (exists) return prev.map((i) => i.book.id === book.id ? { ...i, status } : i);
-      return [...prev, { book, status, review: "", rating: 0, finishedAt: null }];
-    });
+  // Carrega a prateleira do Firestore quando o usuário loga
+  useEffect(() => {
+    if (!user?.uid) { setShelf([]); return; }
+    const load = async () => {
+      const snap = await getDocs(collection(db, "users", user.uid, "shelf"));
+      setShelf(snap.docs.map((d) => d.data()));
+    };
+    load();
+  }, [user?.uid]);
+
+  const addToShelf = async (book, status = "queroLer") => {
+    const ref = doc(db, "users", user.uid, "shelf", book.id);
+    const exists = shelf.find((i) => i.book.id === book.id);
+    if (exists) {
+      await updateDoc(ref, { status });
+      setShelf((prev) => prev.map((i) => i.book.id === book.id ? { ...i, status } : i));
+    } else {
+      const item = { book, status, review: "", rating: 0, finishedAt: null };
+      await setDoc(ref, item);
+      setShelf((prev) => [...prev, item]);
+    }
   };
 
-  const updateShelfItem = (bookId, updates) => {
-    setShelf((prev) =>
-      prev.map((i) => i.book.id === bookId ? { ...i, ...updates } : i)
-    );
+  const updateShelfItem = async (bookId, updates) => {
+    await updateDoc(doc(db, "users", user.uid, "shelf", bookId), updates);
+    setShelf((prev) => prev.map((i) => i.book.id === bookId ? { ...i, ...updates } : i));
   };
 
-  const removeFromShelf = (bookId) => {
+  const removeFromShelf = async (bookId) => {
+    await deleteDoc(doc(db, "users", user.uid, "shelf", bookId));
     setShelf((prev) => prev.filter((i) => i.book.id !== bookId));
   };
 
   const getShelfItem = (bookId) => shelf.find((i) => i.book.id === bookId);
-
-  const getByStatus = (status) => {
-    if (status === "todos") return shelf;
-    return shelf.filter((i) => i.status === status);
-  };
+  const getByStatus = (status) => status === "todos" ? shelf : shelf.filter((i) => i.status === status);
 
   const counts = {
     lido: shelf.filter((i) => i.status === "lido").length,
@@ -47,6 +60,4 @@ export function ShelfProvider({ children }) {
   );
 }
 
-export function useShelf() {
-  return useContext(ShelfContext);
-}
+export function useShelf() { return useContext(ShelfContext); }
