@@ -1,59 +1,86 @@
 import { useState, useEffect } from "react";
-import { searchBooks, getBooksByGenre, getBooksByAuthor } from "../services/api";
+
+// puxo do arquivo .env
+const API_KEY = import.meta.env.VITE_GOOGLE_BOOKS_KEY; // corrigido: era VITE_API_URL
+const BASE_URL = "https://www.googleapis.com/books/v1/volumes";
+
+
+function formatBook(item) {
+  return {
+    id: item.id,
+    title: item.volumeInfo.title,
+    author: item.volumeInfo.authors?.[0] || "Autor Desconhecido",
+    // O replace garante que a imagem carregue em https (evita erros no navegador)
+    cover: item.volumeInfo.imageLinks?.thumbnail?.replace("http:", "https:") || null,
+    averageRating: item.volumeInfo.averageRating || null,
+    description: item.volumeInfo.description || "Nenhuma descrição disponível.",
+    genres: item.volumeInfo.categories || [],
+    publishedDate: item.volumeInfo.publishedDate || "",
+    pageCount: item.volumeInfo.pageCount || null,
+  };
+}
 
 export function useSearch(query) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!query || query.trim().length < 2) {
+    if (!query || query.length < 2) {
       setResults([]);
       return;
     }
-    let cancelled = false;
-    setLoading(true);
-    const timer = setTimeout(async () => {
-      const data = await searchBooks(query);
-      if (!cancelled) {
-        setResults(data);
+
+    const fetchBooks = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${BASE_URL}?q=${query}&maxResults=12&key=${API_KEY}`);
+        const data = await res.json();
+        setResults(data.items?.map(formatBook) || []);
+      } catch (error) {
+        console.error("Erro na busca:", error);
+      } finally {
         setLoading(false);
       }
-    }, 400);
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
     };
+
+    const timeoutId = setTimeout(fetchBooks, 500);
+    return () => clearTimeout(timeoutId);
   }, [query]);
 
   return { results, loading };
 }
 
-export function useRecommendations(preferences) {
-  const [byGenre, setByGenre] = useState([]);
+export function useRecommendations(prefs) {
   const [byAuthor, setByAuthor] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [byGenre, setByGenre] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!preferences) return;
-    const { genres = [], authors = [] } = preferences;
-
-    async function load() {
+    const fetchRecs = async () => {
       setLoading(true);
-      const [genre1, genre2] = genres;
-      const [author1] = authors;
+      try {
+        const author = prefs?.authors?.[0] || "Stephen King";
+        const genre = prefs?.genres?.[0] || "Terror";
 
-      const [genreBooks, authorBooks] = await Promise.all([
-        genre1 ? getBooksByGenre(genre1, 8) : Promise.resolve([]),
-        author1 ? getBooksByAuthor(author1, 8) : Promise.resolve([]),
-      ]);
+        const [resAuthor, resGenre] = await Promise.all([
+          fetch(`${BASE_URL}?q=inauthor:"${author}"&maxResults=10&key=${API_KEY}`),
+          fetch(`${BASE_URL}?q=subject:"${genre}"&maxResults=10&key=${API_KEY}`)
+        ]);
 
-      setByGenre(genreBooks);
-      setByAuthor(authorBooks);
-      setLoading(false);
-    }
+        const dataAuthor = await resAuthor.json();
+        const dataGenre = await resGenre.json();
 
-    load();
-  }, [JSON.stringify(preferences)]);
+        setByAuthor(dataAuthor.items?.map(formatBook) || []);
+        setByGenre(dataGenre.items?.map(formatBook) || []);
+      } catch (error) {
+        console.error("Erro ao buscar recomendações:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  return { byGenre, byAuthor, loading };
+    fetchRecs();
+  }, [prefs]);
+
+  return { byAuthor, byGenre, loading };
 }
