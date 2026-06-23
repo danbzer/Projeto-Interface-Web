@@ -10,10 +10,16 @@ export default function Ajuda() {
   const { tema } = useTheme();
   const isDark = tema === "Escuro";
   const [secaoAberta, setSecaoAberta] = useState("faq");
+  const [mostrarAviso, setMostrarAviso] = useState(false); 
 
   const handleEnviarMensagem = (e) => {
     e.preventDefault();
-    alert("Mensagem enviada com sucesso! Entraremos em contato em breve.");
+    //aviso
+    setMostrarAviso(true);
+    // esconde após 3 segundos
+    setTimeout(() => setMostrarAviso(false), 3000);
+  
+    e.target.reset(); 
   };
 
   const secoes = [
@@ -147,6 +153,28 @@ export default function Ajuda() {
 
           </div>
         </div>
+
+        {/* COMPONENTE DE AVISO (TOAST) */}
+        {mostrarAviso && (
+          <div style={{
+            position: "fixed",
+            bottom: "40px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            backgroundColor: isDark ? "#2F855A" : "#38A169",
+            color: "#FFF",
+            padding: "12px 24px",
+            borderRadius: "8px",
+            fontWeight: "600",
+            fontSize: "14px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            zIndex: 1000,
+            transition: "opacity 0.3s ease-in-out"
+          }}>
+            Mensagem enviada com sucesso! Entraremos em contato em breve.
+          </div>
+        )}
+
       </main>
     </div>
   );

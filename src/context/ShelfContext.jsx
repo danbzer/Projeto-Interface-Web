@@ -26,7 +26,8 @@ export function ShelfProvider({ children }) {
       await updateDoc(ref, { status });
       setShelf((prev) => prev.map((i) => i.book.id === book.id ? { ...i, status } : i));
     } else {
-      const item = { book, status, review: "", rating: 0, finishedAt: null };
+      // Adicionado 'favorite: false' como padrão para novos livros
+      const item = { book, status, review: "", rating: 0, finishedAt: null, favorite: false };
       await setDoc(ref, item);
       setShelf((prev) => [...prev, item]);
     }
@@ -50,6 +51,7 @@ export function ShelfProvider({ children }) {
     lendo: shelf.filter((i) => i.status === "lendo").length,
     queroLer: shelf.filter((i) => i.status === "queroLer").length,
     abandonei: shelf.filter((i) => i.status === "abandonei").length,
+    favoritos: shelf.filter((i) => i.favorite).length, // Contador de favoritos adicionado
     total: shelf.length,
   };
 

@@ -17,6 +17,7 @@ export default function Biblioteca() {
 
   const filteredShelf = shelf.filter((item) => {
     if (filter === "todos") return true;
+    if (filter === "favoritos") return item.favorite; // Filtra pela propriedade boolean
     return item.status === filter;
   });
 
@@ -33,6 +34,7 @@ export default function Biblioteca() {
         <div style={{ ...s.filterBar, borderColor: isDark ? "#4A5568" : "#E2E8F0" }}>
           {[
             { id: "todos", label: "Todos" },
+            { id: "favoritos", label: "Favoritos" },
             { id: "lendo", label: "Lendo" },
             { id: "queroLer", label: "Quero Ler" },
             { id: "lido", label: "Lidos" },
@@ -61,17 +63,24 @@ export default function Biblioteca() {
           <div style={s.emptyState}>
             <span style={s.emptyIcon}>📚</span>
             <p style={{ ...s.emptyText, color: isDark ? "#A0AEC0" : "#718096" }}>Nenhum livro encontrado nesta categoria.</p>
-            {/* O botão agora aponta para /home */}
             <button style={s.exploreBtn} onClick={() => navigate("/home")}>
               Explorar novos livros
             </button>
           </div>
         ) : (
           <div style={s.grid}>
-            {filteredShelf.map(({ book, status, rating }) => (
+            {filteredShelf.map(({ book, status, rating, favorite }) => (
               <div key={book.id} style={s.bookCard} onClick={() => navigate("/livro", { state: book })}>
                 <div style={{ ...s.coverWrapper, backgroundColor: isDark ? "#2D3748" : "#EDF2F7" }}>
                   <CoverImg src={book.cover} style={s.cover} />
+                  
+                  {/* Estrela indicadora no card*/}
+                  {favorite && (
+                    <span style={{ position: "absolute", top: "8px", right: "8px", color: "#F2C94C", fontSize: "16px", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))" }}>
+                      ★
+                    </span>
+                  )}
+
                   <span style={{ ...s.statusBadge, backgroundColor: getStatusColor(status) }}>
                     {getStatusLabel(status)}
                   </span>

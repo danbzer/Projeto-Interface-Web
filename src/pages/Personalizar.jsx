@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
 import { useAuth } from "../context/AuthContext";
 import CoverImg from "../components/ui/CoverImg";
-import { useSearch } from "../hooks/useBooks";
 
 const GENRES = [
   { name: "Terror", img: "https://images.unsplash.com/photo-1505635552518-3448ff116af3?w=200&auto=format&fit=crop&q=60" },
@@ -34,7 +33,6 @@ const SUGGESTED_BOOKS = [
   { id: "s6", title: "Duna", author: "Frank Herbert", cover: "https://covers.openlibrary.org/b/isbn/9780441013593-M.jpg" },
 ];
 
-// Movi o componente para cima para garantir que o React o conheça antes de renderizar
 function SuggestedBooks({ selectedBooks = [], setSelectedBooks }) {
   return (
     <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
@@ -58,17 +56,73 @@ function SuggestedBooks({ selectedBooks = [], setSelectedBooks }) {
 export default function Personalizar() {
   const navigate = useNavigate();
   
-  // Tratativa preventiva para caso o useAuth retorne undefined durante os testes
   const auth = useAuth();
   const updatePreferences = auth ? auth.updatePreferences : null;
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]); 
+  const [dynamicAuthors, setDynamicAuthors] = useState([]); // Guarda os autores vindos da API
+  
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [selectedBooks, setSelectedBooks] = useState([]);
-  
-  const searchHook = useSearch(searchQuery);
-  const searchResults = searchHook ? searchHook.results || [] : [];
+
+  // --- LÓGICA DA BUSCA DINÂMICA ---
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setDynamicAuthors([]);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_KEY;
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=8&key=${apiKey}`);
+        const data = await res.json();
+
+        if (data.items) {
+          // 1. Extrair os livros
+          const formattedBooks = data.items.map(item => ({
+            id: item.id,
+            title: item.volumeInfo.title || "Sem Título",
+            author: item.volumeInfo.authors ? item.volumeInfo.authors[0] : "Autor Desconhecido",
+            cover: item.volumeInfo.imageLinks?.thumbnail?.replace("http:", "https:") || "https://via.placeholder.com/128x192.png?text=Sem+Capa",
+          }));
+          setSearchResults(formattedBooks);
+
+          // 2. Extrair os autores de forma única
+          const uniqueAuthorNames = new Set();
+          const extractedAuthors = [];
+          
+          data.items.forEach(item => {
+            const autores = item.volumeInfo.authors;
+            if (autores) {
+              autores.forEach(nome => {
+                if (!uniqueAuthorNames.has(nome) && nome !== "Autor Desconhecido") {
+                  uniqueAuthorNames.add(nome);
+                  // gera um avatar de iniciais usando a cor LARANJA (#E06237 sem o hash)
+                  extractedAuthors.push({
+                    name: nome,
+                    img: `https://ui-avatars.com/api/?name=${encodeURIComponent(nome)}&background=E06237&color=fff&size=150`
+                  });
+                }
+              });
+            }
+          });
+          setDynamicAuthors(extractedAuthors);
+
+        } else {
+          setSearchResults([]);
+          setDynamicAuthors([]);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar na API:", error);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   const MIN_SELECTIONS = 5;
   const total = (selectedGenres?.length || 0) + (selectedAuthors?.length || 0) + (selectedBooks?.length || 0);
@@ -88,6 +142,19 @@ export default function Personalizar() {
   };
 
   const isSelected = (list, item) => list.includes(item);
+
+  // --- FILTROS LOCAIS ---
+  const queryLower = searchQuery.toLowerCase();
+  const visibleGenres = GENRES.filter(g => g.name.toLowerCase().includes(queryLower));
+  
+  // junta os autores locais filtrados com os autores dinâmicos da API, evitando nomes duplicados
+  const localAuthorsFiltered = AUTHORS.filter(a => a.name.toLowerCase().includes(queryLower));
+  const combinedAuthors = [...localAuthorsFiltered];
+  dynamicAuthors.forEach(da => {
+    if (!combinedAuthors.some(ca => ca.name === da.name)) {
+      combinedAuthors.push(da);
+    }
+  });
 
   return (
     <div style={s.page}>
@@ -113,15 +180,15 @@ export default function Personalizar() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A0AEC0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          <input style={s.searchInput} type="text" placeholder="Pesquise por livros específicos..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          <input style={s.searchInput} type="text" placeholder="Pesquise por títulos ou autores..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         </div>
 
-        {/* Resultados da busca */}
+        {/* Resultados da busca (Livros) */}
         {searchResults.length > 0 && (
           <div style={s.section}>
-            <h3 style={s.sectionTitle}>Resultados da Busca</h3>
+            <h3 style={s.sectionTitle}>Livros Encontrados</h3>
             <div style={s.bookGrid}>
-              {searchResults.slice(0, 6).map((book) => {
+              {searchResults.map((book) => {
                 const sel = selectedBooks.some((b) => b.id === book.id);
                 return (
                   <div key={book.id} onClick={() => {
@@ -145,45 +212,56 @@ export default function Personalizar() {
         )}
 
         {/* Gêneros */}
-        <div style={s.section}>
-          <h3 style={s.sectionTitle}>Seus Gêneros Favoritos</h3>
-          <div style={s.genreGrid}>
-            {GENRES.map((g) => {
-              const sel = isSelected(selectedGenres, g.name);
-              return (
-                <div key={g.name} onClick={() => toggle(selectedGenres, setSelectedGenres, g.name)} 
-                     style={{ ...s.genreItem, border: sel ? "2px solid #E06237" : "2px solid #E2E8F0", transform: sel ? "scale(1.03)" : "none", boxShadow: sel ? "0 8px 16px rgba(224,98,55,0.15)" : "none" }}>
-                  <div style={s.genreImgWrapper}>
-                    <img src={g.img} alt={g.name} style={s.genreImg} />
-                    <div style={s.genreOverlay}></div>
-                    <p style={s.genreLabel}>{g.name}</p>
+        {visibleGenres.length > 0 && (
+          <div style={s.section}>
+            <h3 style={s.sectionTitle}>{searchQuery ? "Gêneros Encontrados" : "Seus Gêneros Favoritos"}</h3>
+            <div style={s.genreGrid}>
+              {visibleGenres.map((g) => {
+                const sel = isSelected(selectedGenres, g.name);
+                return (
+                  <div key={g.name} onClick={() => toggle(selectedGenres, setSelectedGenres, g.name)} 
+                       style={{ ...s.genreItem, border: sel ? "2px solid #E06237" : "2px solid #E2E8F0", transform: sel ? "scale(1.03)" : "none", boxShadow: sel ? "0 8px 16px rgba(224,98,55,0.15)" : "none" }}>
+                    <div style={s.genreImgWrapper}>
+                      <img src={g.img} alt={g.name} style={s.genreImg} />
+                      <div style={s.genreOverlay}></div>
+                      <p style={s.genreLabel}>{g.name}</p>
+                    </div>
+                    {sel && <div style={s.checkBadge}>✓</div>}
                   </div>
-                  {sel && <div style={s.checkBadge}>✓</div>}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Escritores */}
-        <div style={s.section}>
-          <h3 style={s.sectionTitle}>Autores que você acompanha</h3>
-          <div style={s.authorGrid}>
-            {AUTHORS.map((a) => {
-              const sel = isSelected(selectedAuthors, a.name);
-              return (
-                <div key={a.name} onClick={() => toggle(selectedAuthors, setSelectedAuthors, a.name)} 
-                     style={{ ...s.authorItem, transform: sel ? "scale(1.05)" : "none" }}>
-                  <div style={{ ...s.authorImgContainer, border: sel ? "3px solid #E06237" : "3px solid #E2E8F0" }}>
-                    <img src={a.img} alt={a.name} style={s.authorImg} />
+        {combinedAuthors.length > 0 && (
+          <div style={s.section}>
+            <h3 style={s.sectionTitle}>{searchQuery ? "Autores Encontrados" : "Autores que você acompanha"}</h3>
+            <div style={s.authorGrid}>
+              {combinedAuthors.map((a) => {
+                const sel = isSelected(selectedAuthors, a.name);
+                return (
+                  <div key={a.name} onClick={() => toggle(selectedAuthors, setSelectedAuthors, a.name)} 
+                       style={{ ...s.authorItem, transform: sel ? "scale(1.05)" : "none" }}>
+                    <div style={{ ...s.authorImgContainer, border: sel ? "3px solid #E06237" : "3px solid #E2E8F0" }}>
+                      <img src={a.img} alt={a.name} style={s.authorImg} />
+                    </div>
+                    <p style={{ ...s.authorLabel, color: sel ? "#E06237" : "#2D3748", fontWeight: sel ? "700" : "600" }}>{a.name}</p>
+                    {sel && <div style={s.checkBadgeAuthor}>✓</div>}
                   </div>
-                  <p style={{ ...s.authorLabel, color: sel ? "#E06237" : "#2D3748", fontWeight: sel ? "700" : "600" }}>{a.name}</p>
-                  {sel && <div style={s.checkBadgeAuthor}>✓</div>}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Mensagem de nada encontrado */}
+        {searchQuery && searchResults.length === 0 && visibleGenres.length === 0 && combinedAuthors.length === 0 && (
+          <div style={{ textAlign: "center", padding: "40px 0", color: "#718096" }}>
+            <p>Nenhum resultado encontrado para "{searchQuery}".</p>
+          </div>
+        )}
 
         {/* Botões */}
         <div style={s.actions}>
@@ -223,7 +301,7 @@ const s = {
   sectionTitle: { fontSize: "18px", fontWeight: "700", color: "#1A202C", marginBottom: "16px", letterSpacing: "-0.3px" },
   bookGrid: { display: "flex", gap: "16px", flexWrap: "wrap" },
   bookItem: { cursor: "pointer", borderRadius: 10, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, transition: "0.2s", padding: 2 },
-  bookLabel: { fontSize: "11px", color: "#2D3748", textAlign: "center", maxWidth: 64, lineHeight: 1.3, fontWeight: "500" },
+  bookLabel: { fontSize: "11px", color: "#2D3748", textAlign: "center", maxWidth: 64, lineHeight: 1.3, fontWeight: "500", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" },
   genreGrid: { display: "flex", gap: "16px", flexWrap: "wrap" },
   genreItem: { width: "120px", cursor: "pointer", borderRadius: "14px", overflow: "hidden", position: "relative", transition: "0.2s", background: "#fff", boxSizing: "border-box" },
   genreImgWrapper: { width: "100%", height: "76px", position: "relative" },

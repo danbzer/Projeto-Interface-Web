@@ -13,8 +13,9 @@ export default function Configuracoes() {
   const navigate = useNavigate();
   const { tema, setTema } = useTheme();
   const [secaoAberta, setSecaoAberta] = useState("conta");
+  const [mostrarAviso, setMostrarAviso] = useState(false);
 
-  // Inicia o estado tentando buscar dados prévios do localStorage
+  // inicia o estado tentando buscar dados prévios do localStorage
   const [config, setConfig] = useState(() => {
     const savedConfig = localStorage.getItem("userConfig");
     if (savedConfig) {
@@ -42,14 +43,14 @@ export default function Configuracoes() {
     }));
   };
 
-  // Função para salvar as configurações
+  // função para salvar as configurações
   const handleSave = () => {
     try {
       localStorage.setItem("userConfig", JSON.stringify(config));
-      alert("Configurações salvas com sucesso!");
+      setMostrarAviso(true);
+      setTimeout(() => setMostrarAviso(false), 3000);
     } catch (error) {
       console.error("Erro ao salvar configurações", error);
-      alert("Ocorreu um erro ao salvar suas configurações.");
     }
   };
 
@@ -121,7 +122,12 @@ export default function Configuracoes() {
 
                 <div style={s.btnRow}>
                   <button style={s.btnSalvar} onClick={handleSave}>Salvar alterações</button>
-                  <button style={s.btnPerigo} onClick={() => navigate("/")}>Sair da conta</button>
+                  <button 
+                    style={{  ...s.btnPerigo,  backgroundColor: isDark ? "#2D1515" : "#FFF5F5",  borderColor: isDark ? "#E53E3E" : "#FEB2B2" }} 
+                    onClick={() => navigate("/")}
+                  >
+                    Sair da conta
+                  </button>
                 </div>
               </div>
             )}
@@ -297,7 +303,9 @@ export default function Configuracoes() {
                   <label style={{ ...s.label, color: "#E53E3E" }}>Zona de perigo</label>
                   <p style={s.hint}>Essas ações são irreversíveis</p>
                   <div style={s.btnRow}>
-                    <button style={s.btnPerigo}>Excluir minha conta</button>
+                    <button style={{ ...s.btnPerigo, backgroundColor: isDark ? "#2D1515" : "#FFF5F5", borderColor: isDark ? "#E53E3E" : "#FEB2B2" }}>
+                      Excluir minha conta
+                    </button>
                   </div>
                 </div>
 
@@ -307,6 +315,28 @@ export default function Configuracoes() {
 
           </div>
         </div>
+
+        {/* COMPONENTE DE AVISO (TOAST) */}
+        {mostrarAviso && (
+          <div style={{
+            position: "fixed",
+            bottom: "40px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            backgroundColor: isDark ? "#2F855A" : "#38A169",
+            color: "#FFF",
+            padding: "12px 24px",
+            borderRadius: "8px",
+            fontWeight: "600",
+            fontSize: "14px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            zIndex: 1000,
+            transition: "opacity 0.3s ease-in-out"
+          }}>
+            Configurações salvas com sucesso!
+          </div>
+        )}
+
       </main>
     </div>
   );

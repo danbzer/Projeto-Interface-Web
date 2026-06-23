@@ -1,14 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function Header({ showBack = false, showUser = false }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { tema } = useTheme();
+  const isDark = tema === "Escuro";
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // fecha o dropdown ao clicar fora
   useEffect(() => {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -56,7 +58,7 @@ export default function Header({ showBack = false, showUser = false }) {
         <h1 style={s.logoText}>Bookou</h1>
       </div>
 
-      {/* avatar dropdown (só quando logado) */}
+      {/* avatar dropdown */}
       {showUser && user ? (
         <div style={s.avatarWrapper} ref={dropdownRef}>
           <button style={s.avatarBtn} onClick={() => setDropdownOpen(!dropdownOpen)}>
@@ -79,17 +81,35 @@ export default function Header({ showBack = false, showUser = false }) {
           </button>
 
           {dropdownOpen && (
-            <div style={s.dropdown}>
-              {/* cabeçalho do dropdown */}
-              <div style={s.dropdownHeader}>
-                <span style={s.dropdownName}>{user.name || user.username || "Usuário"}</span>
-                <span style={s.dropdownEmail}>{user.email}</span>
+            <div style={{
+              ...s.dropdown,
+              backgroundColor: isDark ? "#2D3748" : "#FFFFFF",
+              border: `1px solid ${isDark ? "#4A5568" : "#E2E8F0"}`,
+            }}>
+              {/* clica fora cabeçalho do dropdown */}
+              <div style={{
+                ...s.dropdownHeader,
+                backgroundColor: isDark ? "#1A202C" : "#F8FAFC",
+              }}>
+                <span style={{ ...s.dropdownName, color: isDark ? "#F7FAFC" : "#1A202C" }}>
+                  {user.name || user.username || "Usuário"}
+                </span>
+                <span style={{ ...s.dropdownEmail, color: isDark ? "#A0AEC0" : "#718096" }}>
+                  {user.email}
+                </span>
               </div>
-              <div style={s.dropdownDivider} />
+
+              <div style={{ ...s.dropdownDivider, backgroundColor: isDark ? "#4A5568" : "#E2E8F0" }} />
+
               {menuItems.map((item) => (
                 <button
                   key={item.label}
-                  style={{ ...s.dropdownItem, color: item.danger ? "#E53E3E" : "#2D3748" }}
+                  style={{
+                    ...s.dropdownItem,
+                    color: item.danger ? "#E53E3E" : isDark ? "#F7FAFC" : "#2D3748",
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isDark ? "#4A5568" : "#F8FAFC"}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                   onClick={() => { item.action(); setDropdownOpen(false); }}
                 >
                   <span style={s.dropdownIcon}>{item.icon}</span>
@@ -119,11 +139,11 @@ const s = {
   avatarImg: { width: 34, height: 34, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.6)" },
   avatarPlaceholder: { width: 34, height: 34, borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.6)" },
   avatarInitial: { fontSize: "15px", fontWeight: "700", color: "#FFFFFF" },
-  dropdown: { position: "absolute", top: "54px", right: 0, backgroundColor: "#FFFFFF", borderRadius: "16px", width: "220px", boxShadow: "0 10px 30px rgba(0,0,0,0.12)", overflow: "hidden", zIndex: 100, border: "1px solid #E2E8F0" },
-  dropdownHeader: { padding: "14px 16px", display: "flex", flexDirection: "column", gap: "2px", backgroundColor: "#F8FAFC" },
-  dropdownName: { fontSize: "14px", fontWeight: "700", color: "#1A202C" },
-  dropdownEmail: { fontSize: "12px", color: "#718096" },
-  dropdownDivider: { height: "1px", backgroundColor: "#E2E8F0" },
+  dropdown: { position: "absolute", top: "54px", right: 0, borderRadius: "16px", width: "220px", boxShadow: "0 10px 30px rgba(0,0,0,0.15)", overflow: "hidden", zIndex: 100 },
+  dropdownHeader: { padding: "14px 16px", display: "flex", flexDirection: "column", gap: "2px" },
+  dropdownName: { fontSize: "14px", fontWeight: "700" },
+  dropdownEmail: { fontSize: "12px" },
+  dropdownDivider: { height: "1px" },
   dropdownItem: { display: "flex", alignItems: "center", gap: "10px", width: "100%", padding: "12px 16px", border: "none", backgroundColor: "transparent", cursor: "pointer", fontSize: "14px", fontWeight: "500", fontFamily: "inherit", textAlign: "left", transition: "background 0.15s" },
   dropdownIcon: { fontSize: "16px" },
 };

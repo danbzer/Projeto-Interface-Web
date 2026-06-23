@@ -48,6 +48,7 @@ export default function Perfil() {
       <Header showBack showUser />
       <main style={s.main}>
 
+        {/* Card do perfil */}
         <div style={cardStyle}>
           <div style={s.profileHeader}>
             <div style={s.photoArea}>
@@ -71,73 +72,105 @@ export default function Perfil() {
 
             <div style={s.profileInfo}>
               {editing ? (
-                <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Nome de usuário" style={s.usernameInput} />
+                <input
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Nome de usuário"
+                  style={{ ...s.usernameInput, backgroundColor: isDark ? "#1A202C" : "#FFF", color: isDark ? "#F7FAFC" : "#1A202C" }}
+                />
               ) : (
                 <h2 style={{ ...s.username, color: isDark ? "#F7FAFC" : "#1A202C" }}>{user?.username || user?.name || "Usuário"}</h2>
               )}
               <p style={{ ...s.email, color: isDark ? "#A0AEC0" : "#718096" }}>{user?.email}</p>
               <div style={s.statsRow}>
-                <span style={{ ...s.stat, color: isDark ? "#CBD5E0" : "#4A5568" }}><b>{counts?.lido || 0}</b> lidos</span>
-                <span style={s.statDot}>·</span>
-                <span style={{ ...s.stat, color: isDark ? "#CBD5E0" : "#4A5568" }}><b>{counts?.lendo || 0}</b> lendo</span>
+                <span style={{ color: isDark ? "#CBD5E0" : "#4A5568" }}><b>{counts?.lido || 0}</b> lidos</span>
+                <span style={{ color: LARANJA, fontWeight: "bold" }}>·</span>
+                <span style={{ color: isDark ? "#CBD5E0" : "#4A5568" }}><b>{counts?.lendo || 0}</b> lendo</span>
               </div>
               {editing ? (
                 <div style={{ display: "flex", gap: 8, marginTop: "6px" }}>
                   <button style={s.saveBtn} onClick={handleSave}>Salvar</button>
-                  <button style={{ ...s.saveBtn, backgroundColor: "#E2E8F0", color: "#4A5568" }} onClick={() => setEditing(false)}>Cancelar</button>
+                  <button style={{ ...s.saveBtn, backgroundColor: isDark ? "#4A5568" : "#E2E8F0", color: isDark ? "#F7FAFC" : "#4A5568" }} onClick={() => setEditing(false)}>Cancelar</button>
                 </div>
               ) : (
-                <button style={s.editBtn} onClick={() => setEditing(true)}>✏️ Editar Perfil</button>
+                <button
+                  style={{ ...s.editBtn, backgroundColor: isDark ? "#4A5568" : "#F1F5F9", color: isDark ? "#F7FAFC" : "#4A5568" }}
+                  onClick={() => setEditing(true)}
+                >
+                  ✏️ Editar Perfil
+                </button>
               )}
             </div>
           </div>
         </div>
 
-        {prefs && (
-          <>
-            {prefs.genres?.length > 0 && (
-              <section style={cardStyle}>
-                <div style={s.sectionHeader}>
-                  <h3 style={{ ...s.sectionTitle, color: isDark ? "#A0AEC0" : "#1A202C" }}>Gêneros Favoritos</h3>
-                  <button style={s.addLink} onClick={() => navigate("/personalizar")}>Editar</button>
-                </div>
-                <div style={s.tagsRow}>
-                  {prefs.genres.map((g, i) => (
-                    <span key={g} style={{ ...s.genreTag, backgroundColor: GENRE_COLORS[i % GENRE_COLORS.length], color: GENRE_TEXT[i % GENRE_TEXT.length] }}>{g}</span>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {prefs.authors?.length > 0 && (
-              <section style={cardStyle}>
-                <div style={s.sectionHeader}>
-                  <h3 style={{ ...s.sectionTitle, color: isDark ? "#A0AEC0" : "#1A202C" }}>Escritores Favoritos</h3>
-                  <button style={s.addLink} onClick={() => navigate("/personalizar")}>Editar</button>
-                </div>
-                <div style={s.authorsRow}>
-                  {prefs.authors.map((a) => (
-                    <div key={a} style={{ ...s.authorChip, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", border: `1px solid ${isDark ? "#4A5568" : "#E2E8F0"}` }}>
-                      <div style={s.authorAvatar}>{a[0].toUpperCase()}</div>
-                      <span style={{ ...s.authorName, color: isDark ? "#F7FAFC" : "#1A202C" }}>{a}</span>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </>
+        {/* Gêneros favoritos */}
+        {prefs?.genres?.length > 0 && (
+          <section style={cardStyle}>
+            <div style={s.sectionHeader}>
+              <h3 style={{ ...s.sectionTitle, color: isDark ? "#A0AEC0" : "#1A202C" }}>Gêneros Favoritos</h3>
+              <button style={s.addLink} onClick={() => navigate("/editar-preferencias")}>Editar</button>
+            </div>
+            <div style={s.tagsRow}>
+              {prefs.genres.map((g, i) => (
+                <span key={g} style={{
+                  ...s.genreTag,
+                  backgroundColor: isDark ? "rgba(255,255,255,0.08)" : GENRE_COLORS[i % GENRE_COLORS.length],
+                  color: isDark ? "#CBD5E0" : GENRE_TEXT[i % GENRE_TEXT.length],
+                  border: isDark ? "1px solid #4A5568" : "none",
+                }}>
+                  {g}
+                </span>
+              ))}
+            </div>
+          </section>
         )}
 
+        {/* Escritores favoritos */}
+        {prefs?.authors?.length > 0 && (
+          <section style={cardStyle}>
+            <div style={s.sectionHeader}>
+              <h3 style={{ ...s.sectionTitle, color: isDark ? "#A0AEC0" : "#1A202C" }}>Escritores Favoritos</h3>
+              <button style={s.addLink} onClick={() => navigate("/editar-preferencias")}>Editar</button>
+            </div>
+            <div style={s.authorsRow}>
+              {prefs.authors.map((a, index) => {
+                // A mágica anti-crash: verifica se o autor é texto (antigo) ou objeto (novo)
+                const isObject = typeof a === "object" && a !== null;
+                const authorName = isObject ? a.name : a;
+                const authorImg = isObject ? a.img : null;
+                
+                return (
+                  <div key={authorName || index} style={{
+                    ...s.authorChip,
+                    backgroundColor: isDark ? "#1A202C" : "#F8FAFC",
+                    border: `1px solid ${isDark ? "#4A5568" : "#E2E8F0"}`,
+                  }}>
+                    {authorImg ? (
+                      <img src={authorImg} alt={authorName} style={{ width: 24, height: 24, borderRadius: "50%" }} />
+                    ) : (
+                      <div style={s.authorAvatar}>{authorName ? authorName[0].toUpperCase() : "?"}</div>
+                    )}
+                    <span style={{ ...s.authorName, color: isDark ? "#F7FAFC" : "#1A202C" }}>{authorName}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Sem preferências */}
         {!prefs && (
           <section style={cardStyle}>
             <div style={s.sectionHeader}>
               <h3 style={{ ...s.sectionTitle, color: isDark ? "#A0AEC0" : "#1A202C" }}>Preferências</h3>
             </div>
             <p style={{ fontSize: "13px", color: isDark ? "#A0AEC0" : "#718096", margin: 0 }}>Você ainda não definiu suas preferências.</p>
-            <button style={{ ...s.prefBtn, marginTop: "12px" }} onClick={() => navigate("/personalizar")}>Definir preferências</button>
+            <button style={{ ...s.prefBtn, marginTop: "12px" }} onClick={() => navigate("/editar-preferencias")}>Definir preferências</button>
           </section>
         )}
 
+        {/* Atividade recente */}
         <section style={cardStyle}>
           <div style={s.sectionHeader}>
             <h3 style={{ ...s.sectionTitle, color: isDark ? "#A0AEC0" : "#1A202C" }}>Atividade Recente</h3>
@@ -145,7 +178,10 @@ export default function Perfil() {
           </div>
           {recentBooks.length === 0 ? (
             <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 0" }}>
-              <button style={s.addCircle} onClick={() => navigate("/biblioteca")}>+</button>
+              <button
+                style={{ ...s.addCircle, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", borderColor: isDark ? "#4A5568" : "#E2E8F0" }}
+                onClick={() => navigate("/biblioteca")}
+              >+</button>
               <span style={{ fontSize: "13px", color: "#A0AEC0" }}>Estante vazia. Adicione livros!</span>
             </div>
           ) : (
@@ -161,19 +197,24 @@ export default function Perfil() {
                 </div>
               ))}
               <div style={{ ...s.miniBook, justifyContent: "center", alignItems: "center" }} onClick={() => navigate("/biblioteca")}>
-                <button style={s.addCircle}>+</button>
+                <button style={{ ...s.addCircle, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", borderColor: isDark ? "#4A5568" : "#E2E8F0" }}>+</button>
                 <span style={{ fontSize: "11px", color: LARANJA, fontWeight: "bold", marginTop: "4px" }}>Ver mais</span>
               </div>
             </div>
           )}
         </section>
 
+        {/* Reviews */}
         {shelf.filter((i) => i.review).length > 0 && (
           <section style={cardStyle}>
-            <h3 style={{ ...s.sectionTitle, color: isDark ? "#A0AEC0" : "#1A202C" }}>Minhas Críticas & Reviews</h3>
+            <h3 style={{ ...s.sectionTitle, color: isDark ? "#A0AEC0" : "#1A202C", marginBottom: "16px" }}>Minhas Críticas & Reviews</h3>
             <div style={s.reviewsList}>
               {shelf.filter((i) => i.review).slice(0, 3).map(({ book, review, rating }) => (
-                <div key={book.id} style={{ ...s.reviewCard, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", border: `1px solid ${isDark ? "#4A5568" : "#E2E8F0"}` }} onClick={() => navigate("/livro", { state: book })}>
+                <div
+                  key={book.id}
+                  style={{ ...s.reviewCard, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", border: `1px solid ${isDark ? "#4A5568" : "#E2E8F0"}` }}
+                  onClick={() => navigate("/livro", { state: book })}
+                >
                   <CoverImg src={book.cover} style={{ width: 48, height: 68, borderRadius: 6, flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: "14px", fontWeight: "bold", color: isDark ? "#F7FAFC" : "#1A202C", margin: 0 }}>{book.title}</p>
@@ -185,6 +226,7 @@ export default function Perfil() {
             </div>
           </section>
         )}
+
       </main>
     </div>
   );
@@ -203,9 +245,7 @@ const s = {
   usernameInput: { padding: "6px 12px", borderRadius: 20, border: `1px solid ${LARANJA}`, fontFamily: "inherit", fontSize: "14px", outline: "none", maxWidth: 240 },
   email: { fontSize: "13px", margin: 0 },
   statsRow: { display: "flex", alignItems: "center", gap: 8, fontSize: "13px", margin: "4px 0" },
-  stat: {},
-  statDot: { color: LARANJA, fontWeight: "bold" },
-  editBtn: { padding: "6px 14px", borderRadius: "20px", backgroundColor: "#F1F5F9", border: "none", fontFamily: "inherit", fontSize: "11px", fontWeight: "bold", color: "#4A5568", cursor: "pointer", alignSelf: "flex-start", marginTop: "4px" },
+  editBtn: { padding: "6px 14px", borderRadius: "20px", border: "none", fontFamily: "inherit", fontSize: "11px", fontWeight: "bold", cursor: "pointer", alignSelf: "flex-start", marginTop: "4px" },
   saveBtn: { padding: "6px 14px", borderRadius: "20px", backgroundColor: LARANJA, border: "none", fontFamily: "inherit", fontSize: "11px", fontWeight: "bold", color: "#fff", cursor: "pointer" },
   sectionHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" },
   sectionTitle: { fontSize: "14px", fontWeight: 700, margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" },
@@ -222,7 +262,7 @@ const s = {
   miniCoverWrapper: { width: "64px", height: "92px", borderRadius: "8px", overflow: "hidden" },
   miniTitle: { fontSize: "11px", fontWeight: 700, margin: "4px 0 0 0", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" },
   miniAuthor: { fontSize: "10px", margin: 0, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" },
-  addCircle: { width: 64, height: 92, borderRadius: 8, backgroundColor: "#F8FAFC", border: "2px dashed #E2E8F0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", color: "#CBD5E0", cursor: "pointer" },
+  addCircle: { width: 64, height: 92, borderRadius: 8, border: "2px dashed", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", color: "#CBD5E0", cursor: "pointer" },
   reviewsList: { display: "flex", flexDirection: "column", gap: 12 },
   reviewCard: { display: "flex", gap: 14, alignItems: "flex-start", padding: "14px", borderRadius: 16, cursor: "pointer" },
   reviewText: { fontSize: "12px", lineHeight: "1.5", fontStyle: "italic", margin: 0, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" },

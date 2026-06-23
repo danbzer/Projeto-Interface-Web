@@ -3,7 +3,10 @@ import { useState } from "react";
 export default function CoverImg({ src, style, alt = "capa" }) {
   const [error, setError] = useState(false);
 
-  if (!src || error) {
+  // Garante https independente do que vier da API
+  const safeSrc = src?.replace("http://", "https://") || null;
+
+  if (!safeSrc || error) {
     return (
       <div
         style={{
@@ -13,6 +16,7 @@ export default function CoverImg({ src, style, alt = "capa" }) {
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
+          borderRadius: style?.borderRadius || 0,
         }}
       >
         <span style={{ fontSize: style?.width > 80 ? "32px" : "18px" }}>📚</span>
@@ -22,7 +26,7 @@ export default function CoverImg({ src, style, alt = "capa" }) {
 
   return (
     <img
-      src={src}
+      src={safeSrc}
       alt={alt}
       style={{ ...style, objectFit: "cover", flexShrink: 0 }}
       onError={() => setError(true)}
