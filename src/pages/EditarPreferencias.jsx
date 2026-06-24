@@ -9,6 +9,15 @@ const GENRES = [
   "Biografia", "Suspense", "Mangá", "HQ", "Policial", "Drama", "Aventura", "Poesia"
 ];
 
+const AUTHORS = [
+  { name: "Colleen Hoover", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80" },
+  { name: "Stephen King", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" },
+  { name: "Jane Austen", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" },
+  { name: "Rick Riordan", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80" },
+  { name: "Sally Rooney", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80" },
+  { name: "Clarice Lispector", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80" },
+];
+
 const LARANJA = "#E06237";
 
 export default function EditarPreferencias() {
@@ -100,6 +109,16 @@ export default function EditarPreferencias() {
     navigate(-1);
   };
 
+  const queryLower = searchQuery.toLowerCase();
+  const localAuthorsFiltered = AUTHORS.filter(a => a.name.toLowerCase().includes(queryLower));
+  
+  const combinedAuthors = [...localAuthorsFiltered];
+  dynamicAuthors.forEach(da => {
+    if (!combinedAuthors.some(ca => ca.name === da.name)) {
+      combinedAuthors.push(da);
+    }
+  });
+
   return (
     <div style={{ ...s.page, backgroundColor: isDark ? "#1A202C" : "#FAFAFA", color: isDark ? "#F7FAFC" : "#1A202C" }}>
       <Header showBack showUser />
@@ -157,28 +176,29 @@ export default function EditarPreferencias() {
             <input style={{ ...s.searchInput, color: isDark ? "#F7FAFC" : "#2D3748" }} type="text" placeholder="Pesquise para adicionar novos autores..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
 
-          {searchQuery && (
-            <div style={{ marginTop: "16px" }}>
-              {isSearching ? (
-                <p style={{ color: isDark ? "#A0AEC0" : "#718096", fontSize: "14px" }}>Buscando autores...</p>
-              ) : dynamicAuthors.length > 0 ? (
-                <div style={s.authorGrid}>
-                  {dynamicAuthors.map((a) => {
-                    const isSel = selectedAuthors.some((sel) => (typeof sel === "object" ? sel.name : sel) === a.name);
-                    return (
-                      <div key={a.name} onClick={() => toggleAuthor(a)} style={{ ...s.authorResult, borderColor: isSel ? LARANJA : isDark ? "#4A5568" : "#E2E8F0", backgroundColor: isDark ? "#1A202C" : "#FFFFFF" }}>
-                        <img src={a.img} alt={a.name} style={s.authorResultImg} />
-                        <p style={{ ...s.authorResultName, color: isDark ? "#F7FAFC" : "#2D3748" }}>{a.name}</p>
-                        {isSel && <div style={s.checkBadge}>✓</div>}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p style={{ color: isDark ? "#A0AEC0" : "#718096", fontSize: "14px" }}>Nenhum autor encontrado.</p>
-              )}
-            </div>
-          )}
+          <div style={{ marginTop: "16px" }}>
+            <h4 style={{ fontSize: "13px", fontWeight: "600", color: isDark ? "#A0AEC0" : "#718096", marginBottom: "12px", textTransform: "uppercase" }}>
+              {searchQuery ? "Resultados da busca" : "Sugestões de Autores"}
+            </h4>
+            {isSearching ? (
+              <p style={{ color: isDark ? "#A0AEC0" : "#718096", fontSize: "14px" }}>Buscando autores...</p>
+            ) : combinedAuthors.length > 0 ? (
+              <div style={s.authorGrid}>
+                {combinedAuthors.map((a) => {
+                  const isSel = selectedAuthors.some((sel) => (typeof sel === "object" ? sel.name : sel) === a.name);
+                  return (
+                    <div key={a.name} onClick={() => toggleAuthor(a)} style={{ ...s.authorResult, borderColor: isSel ? LARANJA : isDark ? "#4A5568" : "#E2E8F0", backgroundColor: isDark ? "#1A202C" : "#FFFFFF" }}>
+                      <img src={a.img} alt={a.name} style={s.authorResultImg} />
+                      <p style={{ ...s.authorResultName, color: isDark ? "#F7FAFC" : "#2D3748" }}>{a.name}</p>
+                      {isSel && <div style={s.checkBadge}>✓</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p style={{ color: isDark ? "#A0AEC0" : "#718096", fontSize: "14px" }}>Nenhum autor encontrado.</p>
+            )}
+          </div>
         </div>
 
         <div style={s.actions}>

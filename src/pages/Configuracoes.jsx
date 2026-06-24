@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 
 const LARANJA = "#E06237";
 
@@ -12,10 +13,23 @@ const TEMAS = ["Claro", "Escuro", "Sistema"];
 export default function Configuracoes() {
   const navigate = useNavigate();
   const { tema, setTema } = useTheme();
+  const auth = useAuth();
+  const user = auth?.user || {};
+
   const [secaoAberta, setSecaoAberta] = useState("conta");
   const [mostrarAviso, setMostrarAviso] = useState(false);
 
-  // inicia o estado tentando buscar dados prévios do localStorage
+  const [nomeUsuario, setNomeUsuario] = useState(user?.username || user?.name || "");
+  const [emailUsuario, setEmailUsuario] = useState(user?.email || "");
+  
+  const [novaSenha, setNovaSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
+
+  useEffect(() => {
+    if (user?.username || user?.name) setNomeUsuario(user.username || user.name);
+    if (user?.email) setEmailUsuario(user.email);
+  }, [user]);
+
   const [config, setConfig] = useState(() => {
     const savedConfig = localStorage.getItem("userConfig");
     if (savedConfig) {
@@ -43,7 +57,6 @@ export default function Configuracoes() {
     }));
   };
 
-  // função para salvar as configurações
   const handleSave = () => {
     try {
       localStorage.setItem("userConfig", JSON.stringify(config));
@@ -51,6 +64,59 @@ export default function Configuracoes() {
       setTimeout(() => setMostrarAviso(false), 3000);
     } catch (error) {
       console.error("Erro ao salvar configurações", error);
+    }
+  };
+
+  const handleSaveConta = async () => {
+    if (novaSenha || confirmarSenha) {
+      if (novaSenha !== confirmarSenha) {
+        alert("⚠️ As senhas digitadas não coincidem. Tente novamente.");
+        return;
+      }
+      if (novaSenha.length < 6) {
+        alert("⚠️ A nova senha deve ter pelo menos 6 caracteres.");
+        return;
+      }
+
+      try {
+        if (auth && auth.updateUserPassword) {
+          await auth.updateUserPassword(novaSenha);
+        }
+        
+        // limpa os campos após salvar com sucesso
+        setNovaSenha("");
+        setConfirmarSenha("");
+        
+        setMostrarAviso(true);
+        setTimeout(() => setMostrarAviso(false), 3000);
+      } catch (error) {
+        console.error("Erro ao atualizar a senha: ", error);
+        
+        if (error.code === 'auth/requires-recent-login') {
+            alert("⚠️ Por motivos de segurança, você precisa fazer logout e login novamente para poder alterar sua senha.");
+        } else {
+            alert("⚠️ Ocorreu um erro ao alterar a senha. Tente novamente.");
+        }
+      }
+    } else {
+      // caso não tenha digitado senha, finge que salvou
+      setMostrarAviso(true);
+      setTimeout(() => setMostrarAviso(false), 3000);
+    }
+  };
+
+  // função para excluir a conta e limpar os dados
+  const handleDeleteAccount = () => {
+    const confirmacao = window.confirm(
+      "⚠️ TEM CERTEZA?\n\nEsta ação é irreversível. Todos os seus dados, preferências e histórico de leitura serão apagados permanentemente."
+    );
+
+    if (confirmacao) {
+      localStorage.removeItem("userConfig");
+      if (auth && auth.logout) {
+        auth.logout();
+      }
+      navigate("/");
     }
   };
 
@@ -102,29 +168,57 @@ export default function Configuracoes() {
 
                 <div style={s.field}>
                   <label style={{ ...s.label, color: isDark ? "#E2E8F0" : "#2D3748" }}>Nome de usuário</label>
-                  <input style={{ ...s.input, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", color: isDark ? "#F7FAFC" : "#2D3748", borderColor: isDark ? "#4A5568" : "#E2E8F0" }} type="text" placeholder="Seu nome de usuário" defaultValue="Usuário" />
+                  <input 
+                    style={{ ...s.input, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", color: isDark ? "#F7FAFC" : "#2D3748", borderColor: isDark ? "#4A5568" : "#E2E8F0" }} 
+                    type="text" 
+                    placeholder="Seu nome de usuário" 
+                    value={nomeUsuario}
+                    onChange={(e) => setNomeUsuario(e.target.value)}
+                  />
                 </div>
 
                 <div style={s.field}>
                   <label style={{ ...s.label, color: isDark ? "#E2E8F0" : "#2D3748" }}>E-mail</label>
-                  <input style={{ ...s.input, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", color: isDark ? "#F7FAFC" : "#2D3748", borderColor: isDark ? "#4A5568" : "#E2E8F0" }} type="email" placeholder="seu@email.com" />
+                  <input 
+                    style={{ ...s.input, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", color: isDark ? "#F7FAFC" : "#2D3748", borderColor: isDark ? "#4A5568" : "#E2E8F0", opacity: 0.7 }} 
+                    type="email" 
+                    placeholder="seu@email.com" 
+                    value={emailUsuario}
+                    onChange={(e) => setEmailUsuario(e.target.value)}
+                    disabled
+                  />
                 </div>
 
                 <div style={s.field}>
                   <label style={{ ...s.label, color: isDark ? "#E2E8F0" : "#2D3748" }}>Nova senha</label>
-                  <input style={{ ...s.input, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", color: isDark ? "#F7FAFC" : "#2D3748", borderColor: isDark ? "#4A5568" : "#E2E8F0" }} type="password" placeholder="Digite uma nova senha" />
+                  <input 
+                    style={{ ...s.input, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", color: isDark ? "#F7FAFC" : "#2D3748", borderColor: isDark ? "#4A5568" : "#E2E8F0" }} 
+                    type="password" 
+                    placeholder="Digite uma nova senha" 
+                    value={novaSenha}
+                    onChange={(e) => setNovaSenha(e.target.value)}
+                  />
                 </div>
 
                 <div style={s.field}>
                   <label style={{ ...s.label, color: isDark ? "#E2E8F0" : "#2D3748" }}>Confirmar senha</label>
-                  <input style={{ ...s.input, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", color: isDark ? "#F7FAFC" : "#2D3748", borderColor: isDark ? "#4A5568" : "#E2E8F0" }} type="password" placeholder="Confirme a nova senha" />
+                  <input 
+                    style={{ ...s.input, backgroundColor: isDark ? "#1A202C" : "#F8FAFC", color: isDark ? "#F7FAFC" : "#2D3748", borderColor: isDark ? "#4A5568" : "#E2E8F0" }} 
+                    type="password" 
+                    placeholder="Confirme a nova senha" 
+                    value={confirmarSenha}
+                    onChange={(e) => setConfirmarSenha(e.target.value)}
+                  />
                 </div>
 
                 <div style={s.btnRow}>
-                  <button style={s.btnSalvar} onClick={handleSave}>Salvar alterações</button>
+                  <button style={s.btnSalvar} onClick={handleSaveConta}>Salvar alterações</button>
                   <button 
                     style={{  ...s.btnPerigo,  backgroundColor: isDark ? "#2D1515" : "#FFF5F5",  borderColor: isDark ? "#E53E3E" : "#FEB2B2" }} 
-                    onClick={() => navigate("/")}
+                    onClick={() => {
+                      if (auth && auth.logout) auth.logout();
+                      navigate("/");
+                    }}
                   >
                     Sair da conta
                   </button>
@@ -303,7 +397,10 @@ export default function Configuracoes() {
                   <label style={{ ...s.label, color: "#E53E3E" }}>Zona de perigo</label>
                   <p style={s.hint}>Essas ações são irreversíveis</p>
                   <div style={s.btnRow}>
-                    <button style={{ ...s.btnPerigo, backgroundColor: isDark ? "#2D1515" : "#FFF5F5", borderColor: isDark ? "#E53E3E" : "#FEB2B2" }}>
+                    <button 
+                      onClick={handleDeleteAccount}
+                      style={{ ...s.btnPerigo, backgroundColor: isDark ? "#2D1515" : "#FFF5F5", borderColor: isDark ? "#E53E3E" : "#FEB2B2" }}
+                    >
                       Excluir minha conta
                     </button>
                   </div>

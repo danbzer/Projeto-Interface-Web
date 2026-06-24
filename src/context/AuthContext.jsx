@@ -7,6 +7,7 @@ import {
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
+  updatePassword
 } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
@@ -74,8 +75,16 @@ export function AuthProvider({ children }) {
     setUser((prev) => ({ ...prev, ...profileData }));
   };
 
+  const updateUserPassword = async (newPassword) => {
+    if (auth.currentUser) {
+      await updatePassword(auth.currentUser, newPassword);
+    } else {
+      throw new Error("Nenhum usuário logado no Firebase.");
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, register, login, loginWithGoogle, logout, updatePreferences, updateProfile }}>
+    <AuthContext.Provider value={{ user, loading, register, login, loginWithGoogle, logout, updatePreferences, updateProfile, updateUserPassword }}>
       {!loading && children}
     </AuthContext.Provider>
   );

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
 import CoverImg from "../components/ui/CoverImg";
@@ -8,15 +8,15 @@ import { useRecommendations, useSearch } from "../hooks/useBooks";
 import { useTheme } from "../context/ThemeContext";
 
 const BACKUP_BOOKS_AUTHOR = [
-  { id: "b1", title: "O Iluminado", author: "Stephen King", cover: "https://covers.openlibrary.org/b/isbn/9780345806789-M.jpg", averageRating: 4.8 },
-  { id: "b2", title: "It: A Coisa", author: "Stephen King", cover: "https://covers.openlibrary.org/b/isbn/9781501142970-M.jpg", averageRating: 4.7 },
-  { id: "b3", title: "Misery", author: "Stephen King", cover: "https://covers.openlibrary.org/b/isbn/9781501156748-M.jpg", averageRating: 4.6 },
+  { id: "b1", title: "1984", author: "George Orwell", cover: "https://covers.openlibrary.org/b/isbn/9788535914849-M.jpg", averageRating: 4.8 },
+  { id: "b2", title: "O Hobbit", author: "J.R.R. Tolkien", cover: "https://covers.openlibrary.org/b/isbn/9788595084735-M.jpg", averageRating: 4.7 },
+  { id: "b3", title: "O Pequeno Príncipe", author: "Antoine de Saint-Exupéry", cover: "https://covers.openlibrary.org/b/isbn/9788522031429-M.jpg", averageRating: 4.9 },
 ];
 
 const BACKUP_BOOKS_GENRE = [
-  { id: "b4", title: "Drácula", author: "Bram Stoker", cover: "https://covers.openlibrary.org/b/isbn/9780486411095-M.jpg", averageRating: 4.5 },
-  { id: "b5", title: "Frankenstein", author: "Mary Shelley", cover: "https://covers.openlibrary.org/b/isbn/9780486282114-M.jpg", averageRating: 4.4 },
-  { id: "b6", title: "O Corvo", author: "Edgar Allan Poe", cover: "https://covers.openlibrary.org/b/isbn/9780785834434-M.jpg", averageRating: 4.9 },
+  { id: "b4", title: "Orgulho e Preconceito", author: "Jane Austen", cover: "https://covers.openlibrary.org/b/isbn/9788544001820-M.jpg", averageRating: 4.8 },
+  { id: "b5", title: "Dom Quixote", author: "Miguel de Cervantes", cover: "https://covers.openlibrary.org/b/isbn/9788573265004-M.jpg", averageRating: 4.5 },
+  { id: "b6", title: "Alice no País das Maravilhas", author: "Lewis Carroll", cover: "https://covers.openlibrary.org/b/isbn/9788537801727-M.jpg", averageRating: 4.6 },
 ];
 
 const FILTER_OPTIONS = {
@@ -55,17 +55,23 @@ export default function Home() {
 
   const limparFiltros = () => setFiltros({ genero: [], ordenar: "" });
 
-  const [activePrefs] = useState(() => {
-    if (user?.preferences) return user.preferences;
-    try {
-      const localUser = localStorage.getItem("user");
-      if (localUser) {
-        const parsed = JSON.parse(localUser);
-        if (parsed.preferences) return parsed.preferences;
-      }
-    } catch (e) {}
-    return { genres: ["Terror"], authors: ["Stephen King"] };
-  });
+  const genreNames = useMemo(() => {
+    return user?.preferences?.genres || [];
+  }, [user?.preferences?.genres]);
+
+  const authorNames = useMemo(() => {
+    const rawAuthors = user?.preferences?.authors || [];
+    return rawAuthors.map(a => typeof a === "object" ? a.name : a);
+  }, [user?.preferences?.authors]);
+
+  const primeiroGenero = genreNames.length > 0 ? genreNames[0] : null;
+  const primeiroAutor = authorNames.length > 0 ? authorNames[0] : null;
+
+  // buscas fallback para nomes que as APIs internacionais acham fácil
+  const apiPrefs = useMemo(() => ({
+    genres: genreNames.length > 0 ? genreNames : ["Fantasy", "Science Fiction"],
+    authors: authorNames.length > 0 ? authorNames : ["J.R.R. Tolkien", "George Orwell"]
+  }), [genreNames, authorNames]);
 
   const queryComFiltros = (() => {
     if (!search) return "";
@@ -78,7 +84,7 @@ export default function Home() {
 
   const orderBy = ORDENAR_MAP[filtros.ordenar] || "relevance";
 
-  const recHook = useRecommendations(activePrefs) || { byGenre: [], byAuthor: [], loading: false };
+  const recHook = useRecommendations(apiPrefs) || { byGenre: [], byAuthor: [], loading: false };
   const searchHook = useSearch(queryComFiltros, orderBy) || { results: [], loading: false };
 
   const loading = recHook.loading;
@@ -97,16 +103,14 @@ export default function Home() {
 
   const scroll = (ref, dir) => ref.current?.scrollBy({ left: dir * 200, behavior: "smooth" });
 
-  const firstName = user?.name?.split(" ")[0] || "Leitor";
-  const genres = activePrefs?.genres || ["Terror"];
-  const authors = activePrefs?.authors || ["Stephen King"];
+  const firstName = (user?.username || user?.name || "Leitor").split(" ")[0];
 
   const featuredList = recHook.byGenre
     ?.filter((book) => book.cover)
     .slice(0, 3)
     .map((book, index) => ({
       ...book,
-      tags: [genres[0] || "Recomendado", index === 0 ? "Em Alta" : "Destaque"],
+      tags: [primeiroGenero || "Recomendado", index === 0 ? "Em Alta" : "Destaque"],
       tagColors: [
         { bg: "#DFF0FF", color: "#326A9F" },
         { bg: "#FFE1E8", color: "#9F3A5B" },
@@ -129,7 +133,6 @@ export default function Home() {
       <Header showUser />
       <main style={s.main}>
 
-        {/* Barra de Busca + Botão Filtros */}
         <div style={s.searchContainer}>
           <div style={{ ...s.searchBox, backgroundColor: isDark ? "#2D3748" : "#FFFFFF", border: `1px solid ${isDark ? "#4A5568" : "#E2E8F0"}` }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A0AEC0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
@@ -163,7 +166,6 @@ export default function Home() {
           </button>
         </div>
 
-        {/* filtros */}
         {filtrosAbertos && (
           <div style={{ ...s.filtrosPanel, backgroundColor: isDark ? "#2D3748" : "#FFFFFF", border: `1px solid ${isDark ? "#4A5568" : "#E2E8F0"}` }}>
             <div style={s.filtroGrupo}>
@@ -205,7 +207,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* resultados de busca */}
         {search.length > 0 && (
           <section style={s.section}>
             <h2 style={{ ...s.sectionTitle, color: isDark ? "#F7FAFC" : "#1A202C" }}>
@@ -229,17 +230,16 @@ export default function Home() {
             <section style={s.greetingSection}>
               <h1 style={{ ...s.greeting, color: isDark ? "#F7FAFC" : "#1A202C" }}>Olá, {firstName}!</h1>
               <p style={{ ...s.question, color: isDark ? "#CBD5E0" : "#4A5568" }}>O que vamos ler hoje?</p>
-              {genres.length > 0 && (
+              {genreNames.length > 0 && (
                 <p style={{ ...s.basedText, color: isDark ? "#A0AEC0" : "#718096" }}>
                   Baseado nas suas preferências de{" "}
-                  {genres.slice(0, 2).map((g, i) => (
+                  {genreNames.slice(0, 2).map((g, i) => (
                     <span key={g} style={{ ...s.tag, backgroundColor: i === 0 ? "#DFF0FF" : "#FFE1E8", color: i === 0 ? "#326A9F" : "#9F3A5B" }}>{g}</span>
                   )).reduce((acc, el, i) => i === 0 ? [el] : [...acc, " e ", el], [])}
                 </p>
               )}
             </section>
 
-            {/* carrossel só API, sem mock, só livros com capa */}
             <section style={s.featureSection}>
               {loading || !currentFeatured ? (
                 <div style={{ ...s.featureCard, backgroundColor: isDark ? "#2D3748" : "#FFFFFF", border: `1px solid ${isDark ? "#4A5568" : "#E2E8F0"}`, cursor: "default" }}>
@@ -280,19 +280,22 @@ export default function Home() {
             </section>
 
             <section style={s.section}>
-              <h2 style={{ ...s.sectionTitle, color: isDark ? "#F7FAFC" : "#1A202C" }}>Porque você gosta de {authors[0]}</h2>
+              <h2 style={{ ...s.sectionTitle, color: isDark ? "#F7FAFC" : "#1A202C" }}>
+                {primeiroAutor ? `Porque você gosta de ${primeiroAutor}` : "Autores em Destaque"}
+              </h2>
               <ScrollRow books={booksByAuthor} loading={loading} navigate={navigate} rowRef={rowRef1} scroll={scroll} isDark={isDark} />
             </section>
 
             <section style={s.section}>
-              <h2 style={{ ...s.sectionTitle, color: isDark ? "#F7FAFC" : "#1A202C" }}>Baseados na sua vibe de {genres[0]}</h2>
+              <h2 style={{ ...s.sectionTitle, color: isDark ? "#F7FAFC" : "#1A202C" }}>
+                {primeiroGenero ? `Baseados na sua vibe de ${primeiroGenero}` : "Gêneros Populares"}
+              </h2>
               <ScrollRow books={booksByGenre} loading={loading} navigate={navigate} rowRef={rowRef2} scroll={scroll} isDark={isDark} />
             </section>
           </>
         )}
       </main>
     </div>
-    
   );
 }
 

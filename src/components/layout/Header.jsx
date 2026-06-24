@@ -11,6 +11,13 @@ export default function Header({ showBack = false, showUser = false }) {
   const isDark = tema === "Escuro";
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  
+  const [imgError, setImgError] = useState(false);
+
+  // reseta o erro se a imagem do usuário mudar
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.photo]);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -70,15 +77,22 @@ export default function Header({ showBack = false, showUser = false }) {
       {showUser && user ? (
         <div style={s.avatarWrapper} ref={dropdownRef}>
           <button style={s.avatarBtn} onClick={() => setDropdownOpen(!dropdownOpen)}>
-            {user.photo ? (
-              <img src={user.photo} alt="avatar" style={s.avatarImg} />
+            
+            {user.photo && !imgError ? (
+              <img 
+                src={user.photo} 
+                alt="avatar" 
+                style={s.avatarImg} 
+                onError={() => setImgError(true)} 
+              />
             ) : (
               <div style={s.avatarPlaceholder}>
                 <span style={s.avatarInitial}>
-                  {(user.name || user.username || "U")[0].toUpperCase()}
+                  {(user.username || user.name || "U")[0].toUpperCase()}
                 </span>
               </div>
             )}
+
             <svg
               width="14" height="14" viewBox="0 0 24 24" fill="none"
               stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
@@ -100,7 +114,7 @@ export default function Header({ showBack = false, showUser = false }) {
                 backgroundColor: isDark ? "#1A202C" : "#F8FAFC",
               }}>
                 <span style={{ ...s.dropdownName, color: isDark ? "#F7FAFC" : "#1A202C" }}>
-                  {user.name || user.username || "Usuário"}
+                  {user.username || user.name || "Usuário"}
                 </span>
                 <span style={{ ...s.dropdownEmail, color: isDark ? "#A0AEC0" : "#718096" }}>
                   {user.email}

@@ -22,9 +22,16 @@ export default function Perfil() {
   const [photo, setPhoto] = useState(user?.photo || null);
   const inputFileRef = useRef(null);
 
+  // --- CORREÇÃO AQUI: Convertendo imagem para Base64 ---
   const handlePhoto = (e) => {
     const file = e.target.files[0];
-    if (file) setPhoto(URL.createObjectURL(file));
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhoto(reader.result); // Salva a imagem como Base64 real
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSave = () => {
@@ -34,6 +41,10 @@ export default function Perfil() {
 
   const prefs = user?.preferences;
   const recentBooks = shelf.slice(-3).reverse();
+  
+  const hasGenres = prefs?.genres?.length > 0;
+  const hasAuthors = prefs?.authors?.length > 0;
+  const hasNoPreferences = !hasGenres && !hasAuthors;
 
   const cardStyle = {
     backgroundColor: isDark ? "#2D3748" : "#FFFFFF",
@@ -51,9 +62,14 @@ export default function Perfil() {
         {/* Card do perfil */}
         <div style={cardStyle}>
           <div style={s.profileHeader}>
-            <div style={s.photoArea}>
+             <div style={s.photoArea}>
               {photo ? (
-                <img src={photo} alt="Perfil" style={s.photoImg} />
+                <img 
+                  src={photo} 
+                  alt="Perfil" 
+                  style={s.photoImg} 
+                  onError={() => setPhoto(null)} 
+                />
               ) : (
                 <div style={{ ...s.photoPlaceholder, backgroundColor: isDark ? "#4A5568" : "#F1F5F9" }}>
                   <svg width="50" height="50" viewBox="0 0 24 24" fill="none">
@@ -105,7 +121,7 @@ export default function Perfil() {
         </div>
 
         {/* Gêneros favoritos */}
-        {prefs?.genres?.length > 0 && (
+        {hasGenres && (
           <section style={cardStyle}>
             <div style={s.sectionHeader}>
               <h3 style={{ ...s.sectionTitle, color: isDark ? "#A0AEC0" : "#1A202C" }}>Gêneros Favoritos</h3>
@@ -127,7 +143,7 @@ export default function Perfil() {
         )}
 
         {/* Escritores favoritos */}
-        {prefs?.authors?.length > 0 && (
+        {hasAuthors && (
           <section style={cardStyle}>
             <div style={s.sectionHeader}>
               <h3 style={{ ...s.sectionTitle, color: isDark ? "#A0AEC0" : "#1A202C" }}>Escritores Favoritos</h3>
@@ -135,7 +151,6 @@ export default function Perfil() {
             </div>
             <div style={s.authorsRow}>
               {prefs.authors.map((a, index) => {
-                // A mágica anti-crash: verifica se o autor é texto (antigo) ou objeto (novo)
                 const isObject = typeof a === "object" && a !== null;
                 const authorName = isObject ? a.name : a;
                 const authorImg = isObject ? a.img : null;
@@ -160,7 +175,7 @@ export default function Perfil() {
         )}
 
         {/* Sem preferências */}
-        {!prefs && (
+        {hasNoPreferences && (
           <section style={cardStyle}>
             <div style={s.sectionHeader}>
               <h3 style={{ ...s.sectionTitle, color: isDark ? "#A0AEC0" : "#1A202C" }}>Preferências</h3>
