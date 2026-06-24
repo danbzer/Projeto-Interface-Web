@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
+import logoImg from "../../assets/images/logo.png";
 
 export default function Header({ showBack = false, showUser = false }) {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export default function Header({ showBack = false, showUser = false }) {
       {showBack ? (
         <button style={s.backBtn} onClick={() => navigate(-1)}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 5l-7 7 7 7"/>
+            <path d="M19 12H5M12 5l-7 7 7 7" />
           </svg>
           <span style={s.backText}>Voltar</span>
         </button>
@@ -50,21 +51,19 @@ export default function Header({ showBack = false, showUser = false }) {
 
       {/* logo centralizada */}
       <div style={s.logoContainer} onClick={() => user && navigate("/home")} role="button">
-        <div style={s.iconContainer}>
-          <span style={{ ...s.bookIcon, backgroundColor: "#6366F1", transform: "rotate(-12deg) translate(-4px, 2px)" }} />
-          <span style={{ ...s.bookIcon, backgroundColor: "#F59E0B", transform: "rotate(4deg) translate(0px, -2px)" }} />
-          <span style={{ ...s.bookIcon, backgroundColor: "#10B981", transform: "rotate(-4deg) translate(4px, 1px)" }} />
-        </div>
-        
+        <img
+          src={logoImg}
+          alt="Folheando Ícone"
+          style={{ height: "32px", width: "auto", objectFit: "contain" }}
+        />
         <h1 style={s.logoText}>
           <a
             href="/home"
             style={{ textDecoration: "none", color: "inherit" }}
           >
-            Bookou
+            Folhe<span style={{ color: "#2D3748" }}>ando</span>
           </a>
         </h1>
-
       </div>
 
       {/* avatar dropdown */}
@@ -85,7 +84,7 @@ export default function Header({ showBack = false, showUser = false }) {
               stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
               style={{ transition: "transform 0.2s", transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)" }}
             >
-              <path d="M6 9l6 6 6-6"/>
+              <path d="M6 9l6 6 6-6" />
             </svg>
           </button>
 
@@ -140,9 +139,7 @@ const s = {
   backBtn: { display: "flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "20px", padding: "7px 14px", cursor: "pointer", color: "#FFFFFF", transition: "background 0.2s" },
   backText: { fontSize: "14px", fontWeight: "600", color: "#FFFFFF", fontFamily: "system-ui, -apple-system, sans-serif" },
   logoContainer: { display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" },
-  iconContainer: { position: "relative", width: "24px", height: "24px", display: "flex", alignItems: "center", justifyContent: "center" },
-  bookIcon: { position: "absolute", width: "12px", height: "16px", borderRadius: "2px", border: "1px solid rgba(255,255,255,0.6)" },
-  logoText: { color: "#FFFFFF", fontSize: "28px", fontWeight: "bold", fontFamily: "'Pacifico', cursive, sans-serif", margin: 0, letterSpacing: "0.5px" },
+  logoText: { color: "#FFFFFF", fontSize: "26px", fontWeight: "bold", fontFamily: "system-ui, -apple-system, sans-serif", margin: 0, letterSpacing: "0.5px" },
   avatarWrapper: { position: "relative" },
   avatarBtn: { display: "flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "30px", padding: "6px 10px 6px 6px", cursor: "pointer", transition: "background 0.2s" },
   avatarImg: { width: 34, height: 34, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.6)" },

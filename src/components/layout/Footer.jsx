@@ -1,46 +1,116 @@
 import { Link } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext"; // Ajuste o caminho se necessário
+import { useState } from "react";
+import logoImg from "../../assets/images/logo.png";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { tema } = useTheme();
+  const isDark = tema === "Escuro";
+
+  // Estados para controlar o hover dos links (já que estamos usando CSS inline)
+  const [hoveredLink, setHoveredLink] = useState(null);
+  const [hoveredSocial, setHoveredSocial] = useState(null);
+
+  // Paleta de cores dinâmica baseada no tema do site
+  const colors = {
+    bg: isDark ? "#111622" : "#F3F4F6",
+    text: isDark ? "#9CA3AF" : "#4B5563",
+    linkHover: "#E06237", // Tom de laranja padrão do seu projeto
+    border: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)",
+    logo: isDark ? "#F7FAFC" : "#1A202C"
+  };
 
   return (
-    <footer style={styles.footer}>
-      <div style={styles.container}>
+    <footer style={{ ...styles.footer, backgroundColor: colors.bg }}>
+      <div style={{ ...styles.container, borderColor: colors.border }}>
 
+        {/* Logo / Brand Flexível */}
         <Link to="/" style={styles.brand} title="Voltar ao início">
-          <span style={styles.logoIcon}>📚</span>
-          <span style={styles.logoText}>Books</span>
+          <img
+            src={logoImg}
+            alt="Folheando Ícone"
+            style={{ height: "32px", width: "auto", marginRight: "10px", objectFit: "contain" }}
+          />
+          <span style={{ ...styles.logoText, color: colors.logo }}>
+            Folhe<span style={{ color: "#E06237" }}>ando</span>
+          </span>
         </Link>
 
+        {/* Links de Navegação com Hover */}
         <div style={styles.links}>
-          <Link to="/" style={styles.link}>Início</Link>
-          <Link to="/home" style={styles.link}>Explorar</Link>
-          <Link to="/perfil" style={styles.link}>Meu Perfil</Link>
+          {[
+            { to: "/", label: "Início" },
+            { to: "/home", label: "Explorar" },
+            { to: "/perfil", label: "Meu Perfil" }
+          ].map((item, idx) => (
+            <Link
+              key={idx}
+              to={item.to}
+              onMouseEnter={() => setHoveredLink(idx)}
+              onMouseLeave={() => setHoveredLink(null)}
+              style={{
+                ...styles.link,
+                color: hoveredLink === idx ? colors.linkHover : colors.text,
+                transform: hoveredLink === idx ? "translateY(-1px)" : "none"
+              }}
+            >
+              {item.label}
+            </Link>
+          ))}
         </div>
 
+        {/* Redes Sociais com Transições Suaves */}
         <div style={styles.socials}>
-          <a href="#" style={styles.socialLink} title="Instagram">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5F0FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-              <circle cx="12" cy="12" r="4" />
-              <circle cx="17.5" cy="6.5" r="1" fill="#F5F0FF" stroke="none" />
-            </svg>
-          </a>
-          <a href="#" style={styles.socialLink} title="Twitter/X">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#F5F0FF">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-            </svg>
-          </a>
-          <a href="#" style={styles.socialLink} title="Facebook">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#F5F0FF">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-            </svg>
-          </a>
+          {[
+            {
+              id: "insta",
+              title: "Instagram",
+              svg: (color) => (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.5" cy="6.5" r="1" fill={color} stroke="none" />
+                </svg>
+              )
+            },
+            {
+              id: "x",
+              title: "Twitter/X",
+              svg: (color) => (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill={color}>
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              )
+            }
+          ].map((social) => {
+            const isHovered = hoveredSocial === social.id;
+            const currentColor = isHovered ? colors.linkHover : colors.text;
+            return (
+              <a
+                key={social.id}
+                href="#"
+                title={social.title}
+                onMouseEnter={() => setHoveredSocial(social.id)}
+                onMouseLeave={() => setHoveredSocial(null)}
+                style={{
+                  ...styles.socialLink,
+                  backgroundColor: isHovered ? (isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)") : "transparent",
+                  transform: isHovered ? "scale(1.1)" : "none"
+                }}
+              >
+                {social.svg(currentColor)}
+              </a>
+            );
+          })}
         </div>
       </div>
 
+      {/* Direitos Autorais Alinhados */}
       <div style={styles.copyright}>
-        <p style={styles.copyrightText}>&copy; {currentYear} BookSpace. Todos os direitos reservados.</p>
+        <p style={{ ...styles.copyrightText, color: colors.text }}>
+          &copy; {currentYear} SeuProjeto. Todos os direitos reservados.
+        </p>
       </div>
     </footer>
   );
@@ -48,71 +118,77 @@ export default function Footer() {
 
 const styles = {
   footer: {
-    backgroundColor: "#301C54",
-    padding: "32px 40px 16px",
+    padding: "40px 24px 24px",
     marginTop: "auto",
-    position: "relative",
-    zIndex: 1,
+    width: "100%",
+    boxSizing: "border-box",
+    transition: "background-color 0.3s ease",
   },
   container: {
-    maxWidth: "1920px",
+    maxWidth: "1050px", // Alinhado perfeitamente com a largura máxima da sua página de Biblioteca!
     margin: "0 auto",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     flexWrap: "wrap",
     gap: "24px",
-    paddingBottom: "24px",
-    borderBottom: "1px solid rgba(245, 240, 255, 0.15)",
+    paddingBottom: "32px",
+    borderBottom: "1px solid",
+    transition: "border-color 0.3s ease",
   },
   brand: {
     display: "flex",
     alignItems: "center",
-    gap: "10px",
+    gap: "8px",
     textDecoration: "none",
   },
   logoIcon: {
-    fontSize: "22px",
+    fontSize: "24px",
   },
   logoText: {
-    fontSize: "18px",
-    fontWeight: "700",
-    color: "#D6C083",
-    fontFamily: "'Homemade Apple', cursive",
+    fontSize: "19px",
+    fontWeight: "800",
+    letterSpacing: "-0.5px",
+    fontFamily: "system-ui, sans-serif",
+    transition: "color 0.3s ease",
   },
   links: {
     display: "flex",
-    gap: "24px",
+    gap: "28px",
     alignItems: "center",
   },
   link: {
     textDecoration: "none",
-    color: "#F5F0FF",
-    fontFamily: "'PT Mono', monospace",
-    fontSize: "13px",
-    opacity: 0.8,
+    fontSize: "14px",
+    fontWeight: "500",
+    fontFamily: "system-ui, sans-serif",
+    transition: "color 0.2s ease, transform 0.2s ease",
   },
   socials: {
     display: "flex",
-    gap: "16px",
+    gap: "8px",
     alignItems: "center",
   },
   socialLink: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    opacity: 0.8,
+    width: "36px",
+    height: "36px",
+    borderRadius: "50%",
+    transition: "transform 0.2s ease, background-color 0.2s ease",
   },
   copyright: {
-    maxWidth: "900px",
-    margin: "16px auto 0",
+    maxWidth: "1050px",
+    margin: "24px auto 0",
     textAlign: "center",
   },
   copyrightText: {
-    fontSize: "11px",
-    color: "#F5F0FF",
-    opacity: 0.5,
-    fontFamily: "'PT Mono', monospace",
+    fontSize: "12px",
+    opacity: 0.7,
+    fontFamily: "system-ui, sans-serif",
     margin: 0,
+    lineHeight: "1.5",
+    transition: "color 0.3s ease",
   },
 };
