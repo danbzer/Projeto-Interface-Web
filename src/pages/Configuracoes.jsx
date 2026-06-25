@@ -18,6 +18,8 @@ export default function Configuracoes() {
 
   const [secaoAberta, setSecaoAberta] = useState("conta");
   const [mostrarAviso, setMostrarAviso] = useState(false);
+  
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [nomeUsuario, setNomeUsuario] = useState(user?.username || user?.name || "");
   const [emailUsuario, setEmailUsuario] = useState(user?.email || "");
@@ -105,19 +107,17 @@ export default function Configuracoes() {
     }
   };
 
-  // função para excluir a conta e limpar os dados
-  const handleDeleteAccount = () => {
-    const confirmacao = window.confirm(
-      "⚠️ TEM CERTEZA?\n\nEsta ação é irreversível. Todos os seus dados, preferências e histórico de leitura serão apagados permanentemente."
-    );
+  const handleOpenDeleteModal = () => {
+    setShowDeleteModal(true); 
+  };
 
-    if (confirmacao) {
-      localStorage.removeItem("userConfig");
-      if (auth && auth.logout) {
-        auth.logout();
-      }
-      navigate("/");
+  const confirmDeleteAccount = () => {
+    localStorage.removeItem("userConfig");
+    if (auth && auth.logout) {
+      auth.logout();
     }
+    setShowDeleteModal(false);
+    navigate("/");
   };
 
   const isDark = tema === "Escuro";
@@ -398,7 +398,7 @@ export default function Configuracoes() {
                   <p style={s.hint}>Essas ações são irreversíveis</p>
                   <div style={s.btnRow}>
                     <button 
-                      onClick={handleDeleteAccount}
+                      onClick={handleOpenDeleteModal}
                       style={{ ...s.btnPerigo, backgroundColor: isDark ? "#2D1515" : "#FFF5F5", borderColor: isDark ? "#E53E3E" : "#FEB2B2" }}
                     >
                       Excluir minha conta
@@ -412,6 +412,49 @@ export default function Configuracoes() {
 
           </div>
         </div>
+
+        {/* MODAL DE CONFIRMAÇÃO DE EXCLUSÃO */}
+        {showDeleteModal && (
+          <div style={{
+            position: "fixed",
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.6)",
+            zIndex: 2000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px"
+          }}>
+            <div style={{
+              backgroundColor: isDark ? "#2D3748" : "#FFFFFF",
+              padding: "32px",
+              borderRadius: "16px",
+              maxWidth: "400px",
+              width: "100%",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+              textAlign: "center"
+            }}>
+              <h3 style={{ color: "#E53E3E", marginTop: 0, fontSize: "20px" }}>⚠️ TEM CERTEZA?</h3>
+              <p style={{ color: isDark ? "#E2E8F0" : "#4A5568", fontSize: "15px", lineHeight: "1.5", marginBottom: "24px" }}>
+                Esta ação é irreversível. Todos os seus dados, preferências e histórico de leitura serão apagados permanentemente.
+              </p>
+              <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+                <button 
+                  onClick={() => setShowDeleteModal(false)}
+                  style={{ padding: "10px 20px", borderRadius: "10px", backgroundColor: isDark ? "#4A5568" : "#E2E8F0", color: isDark ? "#F7FAFC" : "#4A5568", border: "none", fontWeight: "600", cursor: "pointer", flex: 1 }}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={confirmDeleteAccount}
+                  style={{ padding: "10px 20px", borderRadius: "10px", backgroundColor: "#E53E3E", color: "#FFF", border: "none", fontWeight: "600", cursor: "pointer", flex: 1 }}
+                >
+                  Sim, excluir
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* COMPONENTE DE AVISO (TOAST) */}
         {mostrarAviso && (
